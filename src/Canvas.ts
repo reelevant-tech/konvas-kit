@@ -91,23 +91,6 @@ export class Canvas {
       this.getHeight() / previousRatio
     );
   }
-  setWidth(width) {
-    // take into account pixel ratio
-    this.width = this._canvas.width = width * this.pixelRatio;
-    this._canvas.style.width = width + 'px';
-
-    var pixelRatio = this.pixelRatio,
-      _context = this.getContext()._context;
-    _context.scale(pixelRatio, pixelRatio);
-  }
-  setHeight(height) {
-    // take into account pixel ratio
-    this.height = this._canvas.height = height * this.pixelRatio;
-    this._canvas.style.height = height + 'px';
-    var pixelRatio = this.pixelRatio,
-      _context = this.getContext()._context;
-    _context.scale(pixelRatio, pixelRatio);
-  }
   getWidth() {
     return this.width;
   }
@@ -115,8 +98,21 @@ export class Canvas {
     return this.height;
   }
   setSize(width, height) {
-    this.setWidth(width || 0);
-    this.setHeight(height || 0);
+    this.sizeCanvas(width, height);
+    this.scaleCanvas();
+  }
+  sizeCanvas(width: number, height: number) {
+    this.width = this._canvas.width = width * this.pixelRatio;
+    this._canvas.style.width = width + 'px';
+
+    this.height = this._canvas.height = height * this.pixelRatio;
+    this._canvas.style.height = height + 'px';
+  }
+  scaleCanvas() {
+    const _context = this.getContext()._context;
+
+    const scaleRatio = this.pixelRatio;
+    _context.scale(scaleRatio, scaleRatio);
   }
   /**
    * to data url
@@ -169,10 +165,40 @@ export class Canvas {
 Factory.addGetterSetter(Canvas, 'pixelRatio', undefined, getNumberValidator());
 
 export class SceneCanvas extends Canvas {
+  context: SceneContext
+
   constructor(config: ICanvasConfig = { width: 0, height: 0 }) {
     super(config);
     this.context = new SceneContext(this);
     this.setSize(config.width, config.height);
+  }
+
+  setSize(width, height) {
+
+    // Try to create a surface bigger than necessary to prevent recreating it too often
+    // Doesn't work FTM because surface is not correctly aligned with canvas
+    // if (context.surface.width() < width || context.surface.height() < height) {
+    //   const newWidth = Math.max(context.surface.width(), width * 1.2);
+    //   const newHeight = Math.max(context.surface.height(), height * 1.2);
+
+    //   this._canvas.width = newWidth;
+    //   this._canvas.height = newHeight;
+
+    //   context.surface.dispose();
+    //   context.surface = Konva.canvasKit.MakeCanvasSurface(this._canvas);
+    //   context.emulatedCanvas = new Konva.htmlCanvas(context.surface);
+      
+    //   context._context = context.emulatedCanvas.getContext('2d');
+    // }
+
+
+    this.sizeCanvas(width, height);
+    this.context.createSurface();
+    this.scaleCanvas();
+  }
+
+  toDataURL(mimeType, quality) {
+    return this.context.emulatedCanvas.toDataURL(mimeType, quality);
   }
 }
 

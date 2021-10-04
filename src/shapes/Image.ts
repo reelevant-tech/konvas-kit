@@ -2,13 +2,14 @@ import { Util } from '../Util';
 import { Factory } from '../Factory';
 import { Shape, ShapeConfig } from '../Shape';
 import { getNumberValidator } from '../Validators';
-import { _registerNode } from '../Global';
+import { Konva, _registerNode } from '../Global';
+import type { Image as CanvasKitImage } from 'canvaskit-wasm' 
 
 import { GetSet, IRect } from '../types';
 import { Context } from '../Context';
 
 export interface ImageConfig extends ShapeConfig {
-  image: CanvasImageSource | undefined;
+  image: ArrayBuffer | undefined;
   crop?: IRect;
 }
 
@@ -36,28 +37,24 @@ export interface ImageConfig extends ShapeConfig {
  * imageObj.src = '/path/to/image.jpg'
  */
 export class Image extends Shape<ImageConfig> {
+  cachedCanvasKitImg : CanvasKitImage
+
   constructor(attrs: ImageConfig) {
     super(attrs);
     this.on('imageChange.konva', () => {
+      this.cachedCanvasKitImg = null;
       this._setImageLoad();
     });
 
     this._setImageLoad();
   }
   _setImageLoad() {
-    const image = this.image() as any;
-    // check is image is already loaded
-    if (image && image.complete) {
-      return;
-    }
-    // check is video is already loaded
-    if (image && image.readyState === 4) {
-      return;
-    }
-    if (image && image['addEventListener']) {
-      image['addEventListener']('load', () => {
-        this._requestDraw();
-      });
+    const image = this.image();
+
+    if (image) {
+      if (!this.cachedCanvasKitImg) {
+        this.cachedCanvasKitImg = Konva.canvasKit.MakeImageFromEncoded(image)
+      }
     }
   }
   _useBufferCanvas() {
@@ -96,7 +93,8 @@ export class Image extends Shape<ImageConfig> {
       context.fillStrokeShape(this);
     }
 
-    if (image) {
+    if (image && this.cachedCanvasKitImg) {
+      params[0] = this.cachedCanvasKitImg;
       context.drawImage.apply(context, params);
     }
   }
@@ -110,38 +108,13 @@ export class Image extends Shape<ImageConfig> {
     context.fillStrokeShape(this);
   }
   getWidth() {
-    return this.attrs.width ?? this.image()?.width;
+    return this.attrs.width ?? this.cachedCanvasKitImg?.width() ?? 100;
   }
   getHeight() {
-    return this.attrs.height ?? this.image()?.height;
+    return this.attrs.height ?? this.cachedCanvasKitImg?.height() ?? 100;
   }
 
-  /**
-   * load image from given url and create `Konva.Image` instance
-   * @method
-   * @memberof Konva.Image
-   * @param {String} url image source
-   * @param {Function} callback with Konva.Image instance as first argument
-   * @example
-   *  Konva.Image.fromURL(imageURL, function(image){
-   *    // image is Konva.Image instance
-   *    layer.add(image);
-   *    layer.draw();
-   *  });
-   */
-  static fromURL(url, callback) {
-    var img = Util.createImageElement();
-    img.onload = function () {
-      var image = new Image({
-        image: img,
-      });
-      callback(image);
-    };
-    img.crossOrigin = 'Anonymous';
-    img.src = url;
-  }
-
-  image: GetSet<CanvasImageSource | undefined, this>;
+  image: GetSet<ArrayBuffer | undefined, this>;
   crop: GetSet<IRect, this>;
   cropX: GetSet<number, this>;
   cropY: GetSet<number, this>;

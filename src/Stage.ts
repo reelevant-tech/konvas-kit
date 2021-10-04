@@ -179,7 +179,6 @@ export class Stage extends Container<Layer> {
     this._buildDOM();
     this._bindContentEvents();
     stages.push(this);
-    this.on('widthChange.konva heightChange.konva', this._resizeDOM);
     this.on('visibleChange.konva', this._checkVisibility);
     this.on(
       'clipWidthChange.konva clipHeightChange.konva clipFuncChange.konva',
@@ -319,32 +318,39 @@ export class Stage extends Container<Layer> {
     config.width = config.width || this.width();
     config.height = config.height || this.height();
 
-    var canvas = new SceneCanvas({
-      width: config.width,
-      height: config.height,
-      pixelRatio: config.pixelRatio || 1,
-    });
-    var _context = canvas.getContext()._context;
-    var layers = this.children;
+    // Only works with one layer, layers recombination doesn't seem to work
+    return this.children[0]._toKonvaCanvas(config);
 
-    if (config.x || config.y) {
-      _context.translate(-1 * config.x, -1 * config.y);
-    }
+    // var canvas = new SceneCanvas({
+    //   width: config.width,
+    //   height: config.height,
+    //   pixelRatio: config.pixelRatio || 1,
+    // });
+    // var _context = canvas.getContext()._context;
+    // var layers = this.children;
 
-    layers.forEach(function (layer) {
-      if (!layer.isVisible()) {
-        return;
-      }
-      var layerCanvas = layer._toKonvaCanvas(config);
-      _context.drawImage(
-        layerCanvas._canvas,
-        config.x,
-        config.y,
-        layerCanvas.getWidth() / layerCanvas.getPixelRatio(),
-        layerCanvas.getHeight() / layerCanvas.getPixelRatio()
-      );
-    });
-    return canvas;
+    // if (config.x || config.y) {
+    //   _context.translate(-1 * config.x, -1 * config.y);
+    // }
+
+    // layers.forEach(function (layer) {
+    //   if (!layer.isVisible()) {
+    //     return;
+    //   }
+    //   var layerCanvas = layer._toKonvaCanvas(config);
+    //   const layerImage = layerCanvas.context.surface.makeImageSnapshot()
+    //   _context.drawImage(
+    //     layerImage,
+    //     config.x,
+    //     config.y,
+    //     layerCanvas.getWidth() / layerCanvas.getPixelRatio(),
+    //     layerCanvas.getHeight() / layerCanvas.getPixelRatio()
+    //   );
+    // });
+
+    // canvas.context.surface.flush()
+
+    // return canvas;
   }
 
   /**
@@ -376,6 +382,11 @@ export class Stage extends Container<Layer> {
     }
 
     return null;
+  }
+  setSize(size) {
+    super.setSize(size)
+    this._resizeDOM()
+    return this
   }
   _resizeDOM() {
     var width = this.width();

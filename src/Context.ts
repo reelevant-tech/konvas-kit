@@ -2,6 +2,7 @@ import { Util } from './Util';
 import { Konva } from './Global';
 import { Canvas } from './Canvas';
 import { Shape } from './Shape';
+import { EmulatedCanvas2D, Surface } from 'canvaskit-wasm';
 
 function simplifyArray(arr: Array<any>) {
   var retArr = [],
@@ -111,15 +112,13 @@ const traceArrMax = 100;
  *    }
  * })
  */
-export class Context {
+export abstract class Context {
   canvas: Canvas;
   _context: CanvasRenderingContext2D;
   traceArr: Array<String>;
+  surface: Surface;
 
-  constructor(canvas: Canvas) {
-    this.canvas = canvas;
-    this._context = canvas._canvas.getContext('2d') as CanvasRenderingContext2D;
-
+  constructor() {
     if (Konva.enableTrace) {
       this.traceArr = [];
       this._enableTrace();
@@ -714,6 +713,41 @@ CONTEXT_PROPERTIES.forEach(function (prop) {
 });
 
 export class SceneContext extends Context {
+  emulatedCanvas: EmulatedCanvas2D;
+
+  constructor(canvas: Canvas) {
+    super()
+
+    this.canvas = canvas;
+
+    this.createSurface()
+  }
+
+  createSurface() {
+    const htmlCanvas = this.canvas._canvas;
+
+    if (this.surface) {
+      if (this.surface.width() === htmlCanvas.width && this.surface.height() === htmlCanvas.height)
+        return
+
+      this.surface.dispose();
+    }
+
+    const isNode = typeof document === 'undefined';
+
+    if (isNode) {
+      const width = Math.max(htmlCanvas.width, 10);
+      const height = Math.max(htmlCanvas.height, 10);
+
+      this.surface = Konva.canvasKit.MakeSurface(width, height);
+    } else {
+      this.surface = Konva.canvasKit.MakeCanvasSurface(htmlCanvas);
+    }
+
+    this.emulatedCanvas = new Konva.htmlCanvas(this.surface);
+    this._context = this.emulatedCanvas.getContext('2d');
+  }
+
   _fillColor(shape: Shape) {
     var fill = shape.fill();
 
@@ -853,6 +887,13 @@ export class SceneContext extends Context {
 }
 
 export class HitContext extends Context {
+  constructor(canvas: Canvas) {
+    super()
+
+    this.canvas = canvas;
+    this._context = this.canvas._canvas.getContext('2d');
+  }
+
   _fill(shape) {
     this.save();
     this.setAttr('fillStyle', shape.colorKey);

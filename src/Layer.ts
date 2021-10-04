@@ -9,7 +9,7 @@ import { getBooleanValidator } from './Validators';
 import { GetSet, Vector2d } from './types';
 import { Group } from './Group';
 import { Shape, shapes } from './Shape';
-import { _registerNode } from './Global';
+import { Konva, _registerNode } from './Global';
 
 export interface LayerConfig extends ContainerConfig {
   clearBeforeDraw?: boolean;
@@ -392,11 +392,15 @@ export class Layer extends Container<Group | Shape> {
       node: this,
     });
 
+    const surface = canvas.getContext().surface;
+
     if (this.clearBeforeDraw()) {
       canvas.getContext().clear();
     }
 
     Container.prototype.drawScene.call(this, canvas, top);
+
+    surface.flush()
 
     this._fire(DRAW, {
       node: this,

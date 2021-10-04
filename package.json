@@ -1,20 +1,18 @@
 {
-  "name": "konva",
-  "version": "8.1.4",
+  "name": "@rlvt/konva",
+  "version": "9.1.1",
   "author": "Anton Lavrenov",
   "files": [
     "README.md",
-    "konva.js",
-    "konva.min.js",
     "lib"
   ],
-  "type": "module",
   "main": "./lib/index-node.js",
   "browser": "./lib/index.js",
   "typings": "./lib/index-types.d.ts",
   "scripts": {
     "start": "npm run test:watch",
-    "compile": "npm run clean && npm run tsc && cp ./src/index-types.d.ts ./lib/index-types.d.ts && npm run rollup",
+    "compile": "npm run clean && npm run tsc && cp ./src/index-types.d.ts ./lib/index-types.d.ts",
+    "prepublishOnly": "npm run compile",
     "build": "npm run compile && cp ./src/index-types.d.ts ./lib && gulp build && node ./rename-imports.js",
     "test:import": "npm run build  && node ./test/import-test.js",
     "test": "npm run test:browser && npm run test:node",
@@ -107,5 +105,8 @@
     "type": "git",
     "url": "git://github.com/konvajs/konva.git"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "canvaskit-wasm": "^0.30.0"
+  }
 }

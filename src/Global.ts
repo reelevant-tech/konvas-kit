@@ -14,6 +14,10 @@ var PI_OVER_180 = Math.PI / 180;
  * @namespace Konva
  */
 
+
+import type { CanvasKit, Surface, EmulatedCanvas2D, FontMgr, CanvasKitInitOptions } from 'canvaskit-wasm'
+const CanvasKitInit = require('canvaskit-wasm/bin/canvaskit.js');
+
 function detectBrowser() {
   return (
     typeof window !== 'undefined' &&
@@ -168,6 +172,25 @@ export const Konva = {
   _injectGlobal(Konva) {
     glob.Konva = Konva;
   },
+  async initCanvasKit(options: CanvasKitInitOptions) {
+    if (Konva.canvasKit)
+      return;
+    
+    Konva.canvasKit = await CanvasKitInit(options);
+
+    // CanvasKit uses an internal constuctor to connect a Surface to an EmulatedCanvas2D
+    // We need to access it because we want to use an HTML Canvas with the fake CanvasKit HTML Canvas API
+    // So we create a useless canvas and use it to retrieve the internal constructor
+    const shittyCanvas = Konva.canvasKit.MakeCanvas(10, 10);
+    Konva.htmlCanvas = shittyCanvas.constructor as any;
+    shittyCanvas.dispose();
+  },
+  canvasKit: null as CanvasKit,
+  htmlCanvas: null as new(surface: Surface) => EmulatedCanvas2D,
+  async initFontMgr(fonts: ArrayBuffer[]) {
+    Konva.fontMgr = Konva.canvasKit.FontMgr.FromData(...fonts);
+  },
+  fontMgr: null as FontMgr,
 };
 
 export const _registerNode = (NodeClass: any) => {

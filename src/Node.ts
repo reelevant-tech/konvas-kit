@@ -1889,6 +1889,7 @@ export abstract class Node<Config extends NodeConfig = NodeConfig> {
     }
 
     this.drawScene(canvas);
+    canvas.context.surface.flush()
     context.restore();
 
     return canvas;

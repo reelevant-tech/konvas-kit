@@ -26,6 +26,7 @@ import { RGBA } from './filters/RGBA';
 import { Sepia } from './filters/Sepia';
 import { Solarize } from './filters/Solarize';
 import { Threshold } from './filters/Threshold';
+import { CanvasKit, Surface, EmulatedCanvas2D, FontMgr, CanvasKitInitOptions } from 'canvaskit-wasm'
 
 declare namespace Konva {
   export let enableTrace: number;
@@ -39,6 +40,11 @@ declare namespace Konva {
   export let hitOnDragEnabled: boolean;
   export const isDragging: () => boolean;
   export const isDragReady: () => boolean;
+  export const initCanvasKit: (options: CanvasKitInitOptions) => Promise<void>;
+  export const canvasKit: CanvasKit;
+  export const htmlCanvas: new(surface: Surface) => EmulatedCanvas2D;
+  export const initFontMgr: (fonts: ArrayBuffer[]) => Promise<void>;
+  export const fontMgr: FontMgr;
 
   export type Vector2d = import('./types').Vector2d;
 
@@ -131,6 +137,10 @@ declare namespace Konva {
   export const RegularPolygon: typeof import('./shapes/RegularPolygon').RegularPolygon;
   export type RegularPolygon = import('./shapes/RegularPolygon').RegularPolygon;
   export type RegularPolygonConfig = import('./shapes/RegularPolygon').RegularPolygonConfig;
+  export const RichText: typeof import('./shapes/RichText').RichText;
+  export type RichText = import('./shapes/RichText').RichText;
+  export type RichTextConfig = import('./shapes/RichText').RichTextConfig;
+  export type TextPart = import('./shapes/RichText').TextPart;
   export const Ring: typeof import('./shapes/Ring').Ring;
   export type Ring = import('./shapes/Ring').Ring;
   export type RingConfig = import('./shapes/Ring').RingConfig;

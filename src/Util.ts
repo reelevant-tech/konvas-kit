@@ -524,6 +524,7 @@ export const Util = {
   },
   createCanvasElement() {
     var canvas = document.createElement('canvas');
+
     // on some environments canvas.style is readonly
     try {
       (<any>canvas).style = canvas.style || {};
