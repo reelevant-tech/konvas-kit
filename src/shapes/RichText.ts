@@ -137,11 +137,8 @@ export class RichText extends Shape<RichTextConfig> {
           : Konva.canvasKit.TextAlign.Justify
 
     const paraStyle = new Konva.canvasKit.ParagraphStyle({
-      textStyle: {
-        color: Konva.canvasKit.BLACK,
-        fontFamilies: ['Roboto', 'Noto Color Emoji'],
-        fontSize: 12
-      },
+      // TextStyle is defined after for each text part
+      textStyle: {},
       textAlign,
       ellipsis: '…',
       maxLines: Math.pow(2, 32) - 2 // Max CPP int
@@ -178,7 +175,7 @@ export class RichText extends Shape<RichTextConfig> {
       }
 
       const style = new Konva.canvasKit.TextStyle({
-        fontFamilies: partStyle.fontFamily ? [partStyle.fontFamily] : undefined,
+        fontFamilies: [partStyle.fontFamily, 'Roboto', 'Noto Color Emoji'],
         fontSize: partStyle.fontSize,
         fontStyle: { weight, slant },
         decoration,
