@@ -143,7 +143,8 @@ export class RichText extends Shape<RichTextConfig> {
       ellipsis: '…',
       maxLines: Math.pow(2, 32) - 2 // Max CPP int
     })
-    const builder = Konva.canvasKit.ParagraphBuilder.Make(paraStyle, Konva.fontMgr)
+
+    const builder = Konva.canvasKit.ParagraphBuilder.MakeFromFontProvider(paraStyle, Konva.typefaceFontProvider)
 
     const parts = this.textParts()
 

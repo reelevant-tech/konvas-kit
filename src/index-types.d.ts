@@ -26,7 +26,7 @@ import { RGBA } from './filters/RGBA';
 import { Sepia } from './filters/Sepia';
 import { Solarize } from './filters/Solarize';
 import { Threshold } from './filters/Threshold';
-import { CanvasKit, Surface, EmulatedCanvas2D, FontMgr, CanvasKitInitOptions } from 'canvaskit-wasm'
+import { CanvasKit, Surface, EmulatedCanvas2D, CanvasKitInitOptions, TypefaceFontProvider } from 'canvaskit-wasm'
 
 declare namespace Konva {
   export let enableTrace: number;
@@ -43,8 +43,8 @@ declare namespace Konva {
   export const initCanvasKit: (options: CanvasKitInitOptions) => Promise<void>;
   export const canvasKit: CanvasKit;
   export const htmlCanvas: new(surface: Surface) => EmulatedCanvas2D;
-  export const initFontMgr: (fonts: ArrayBuffer[]) => Promise<void>;
-  export const fontMgr: FontMgr;
+  export const initFontMgr: () => void;
+  export const typefaceFontProvider: TypefaceFontProvider;
 
   export type Vector2d = import('./types').Vector2d;
 
