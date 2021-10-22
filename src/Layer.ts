@@ -472,6 +472,14 @@ export class Layer extends Container<Group | Shape> {
     }
   }
 
+  destroy() {
+    super.destroy();
+
+    this.hitCanvas.destroy();
+    this.canvas.destroy();
+    return this;
+  }
+
   hitGraphEnabled: GetSet<boolean, this>;
 
   clearBeforeDraw: GetSet<boolean, this>;

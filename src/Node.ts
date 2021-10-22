@@ -424,8 +424,8 @@ export abstract class Node<Config extends NodeConfig = NodeConfig> {
     return this._cache.has(CANVAS);
   }
 
-  abstract drawScene(canvas?: Canvas, top?: Node): void;
-  abstract drawHit(canvas?: Canvas, top?: Node): void;
+  abstract drawScene(canvas?: SceneCanvas, top?: Node): void;
+  abstract drawHit(canvas?: HitCanvas, top?: Node): void;
   /**
    * Return client rectangle {x, y, width, height} of node. This rectangle also include all styling (strokes, shadows, etc).
    * The purpose of the method is similar to getBoundingClientRect API of the DOM.

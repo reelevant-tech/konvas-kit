@@ -43,10 +43,10 @@ interface ICanvasConfig {
  * @param {Number} config.height
  * @param {Number} config.pixelRatio
  */
-export class Canvas {
+export abstract class Canvas<T extends Context> {
   pixelRatio = 1;
   _canvas: HTMLCanvasElement;
-  context: Context;
+  context: T;
   width = 0;
   height = 0;
 
@@ -140,6 +140,11 @@ export class Canvas {
       }
     }
   }
+
+  destroy() {
+    this.context.destroy()
+    return this
+  }
 }
 
 /**
@@ -164,9 +169,7 @@ export class Canvas {
  */
 Factory.addGetterSetter(Canvas, 'pixelRatio', undefined, getNumberValidator());
 
-export class SceneCanvas extends Canvas {
-  context: SceneContext
-
+export class SceneCanvas extends Canvas<SceneContext> {
   constructor(config: ICanvasConfig = { width: 0, height: 0 }) {
     super(config);
     this.context = new SceneContext(this);
@@ -202,7 +205,7 @@ export class SceneCanvas extends Canvas {
   }
 }
 
-export class HitCanvas extends Canvas {
+export class HitCanvas extends Canvas<HitContext> {
   hitCanvas = true;
   constructor(config: ICanvasConfig = { width: 0, height: 0 }) {
     super(config);

@@ -113,10 +113,9 @@ const traceArrMax = 100;
  * })
  */
 export abstract class Context {
-  canvas: Canvas;
+  canvas: Canvas<Context>;
   _context: CanvasRenderingContext2D;
   traceArr: Array<String>;
-  surface: Surface;
 
   constructor() {
     if (Konva.enableTrace) {
@@ -699,6 +698,11 @@ export abstract class Context {
       this.setAttr('globalCompositeOperation', op);
     }
   }
+
+  destroy() {
+    // Nothing
+    return this;
+  }
 }
 
 CONTEXT_PROPERTIES.forEach(function (prop) {
@@ -714,8 +718,9 @@ CONTEXT_PROPERTIES.forEach(function (prop) {
 
 export class SceneContext extends Context {
   emulatedCanvas: EmulatedCanvas2D;
+  surface: Surface;
 
-  constructor(canvas: Canvas) {
+  constructor(canvas: Canvas<SceneContext>) {
     super()
 
     this.canvas = canvas;
@@ -746,6 +751,11 @@ export class SceneContext extends Context {
 
     this.emulatedCanvas = new Konva.htmlCanvas(this.surface);
     this._context = this.emulatedCanvas.getContext('2d');
+  }
+
+  destroy() {
+    this.surface.dispose();
+    return this;
   }
 
   _fillColor(shape: Shape) {
@@ -887,7 +897,7 @@ export class SceneContext extends Context {
 }
 
 export class HitContext extends Context {
-  constructor(canvas: Canvas) {
+  constructor(canvas: Canvas<HitContext>) {
     super()
 
     this.canvas = canvas;

@@ -269,6 +269,9 @@ export class Stage extends Container<Layer> {
   destroy() {
     super.destroy();
 
+    this.bufferCanvas.destroy();
+    this.bufferHitCanvas.destroy();
+
     var content = this.content;
     if (content && Util._isInDocument(content)) {
       this.container().removeChild(content);

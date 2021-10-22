@@ -1,5 +1,5 @@
 import { Konva } from '../Global'
-import { Context } from '../Context'
+import { HitContext, SceneContext } from '../Context'
 import { Factory } from '../Factory'
 import { _registerNode } from '../Global'
 import { Shape, ShapeConfig } from '../Shape'
@@ -55,13 +55,6 @@ export class RichText extends Shape<RichTextConfig> {
   private readonly linesHeight!: number
 
   private paragraph: Paragraph
-
-  // used when drawing
-  private readonly drawState!: {
-    x: number
-    y: number
-    text: string
-  }
 
   constructor (config: RichTextConfig) {
     super(config)
@@ -206,7 +199,7 @@ export class RichText extends Shape<RichTextConfig> {
    * @description This method is called when the shape should render
    * on canvas
    */
-  protected _sceneFunc (context: Context & CanvasRenderingContext2D) {
+  protected _sceneFunc (context: SceneContext) {
     const skCanvas = context.surface.getCanvas()
 
     const y = this.verticalAlign() === 'top'
@@ -224,7 +217,7 @@ export class RichText extends Shape<RichTextConfig> {
    * @description This method should render on canvas a rect with
    * the width and the height of the text shape
    */
-  protected _hitFunc (context: Context & CanvasRenderingContext2D) {
+  protected _hitFunc (context: HitContext) {
     context.beginPath()
     context.rect(0, 0, this.getWidth(), this.getHeight())
     context.closePath()
@@ -235,6 +228,13 @@ export class RichText extends Shape<RichTextConfig> {
   // if we do, the result will be unexpected
   public getStrokeScaleEnabled () {
     return true
+  }
+
+  destroy() {
+    super.destroy()
+    this.paragraph.delete()
+
+    return this
   }
 }
 _registerNode(RichText)
