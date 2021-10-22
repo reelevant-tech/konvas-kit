@@ -113,6 +113,13 @@ export class Image extends Shape<ImageConfig> {
   getHeight() {
     return this.attrs.height ?? this.cachedCanvasKitImg?.height() ?? 100;
   }
+  
+  destroy() {
+    super.destroy();
+
+    this.cachedCanvasKitImg?.delete();
+    return this;
+  }
 
   image: GetSet<ArrayBuffer | undefined, this>;
   crop: GetSet<IRect, this>;
