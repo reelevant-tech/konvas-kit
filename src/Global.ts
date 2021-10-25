@@ -39,6 +39,8 @@ export const glob: any =
     ? self
     : {};
 
+let initCanvasKitPromise: Promise<void> = null
+
 export const Konva = {
   _global: glob,
   version: '@@version',
@@ -173,17 +175,18 @@ export const Konva = {
     glob.Konva = Konva;
   },
   async initCanvasKit(options: CanvasKitInitOptions) {
-    if (Konva.canvasKit)
-      return;
-    
-    Konva.canvasKit = await CanvasKitInit(options);
+    initCanvasKitPromise ??= (async () => {
+      Konva.canvasKit = await CanvasKitInit(options);
 
-    // CanvasKit uses an internal constuctor to connect a Surface to an EmulatedCanvas2D
-    // We need to access it because we want to use an HTML Canvas with the fake CanvasKit HTML Canvas API
-    // So we create a useless canvas and use it to retrieve the internal constructor
-    const shittyCanvas = Konva.canvasKit.MakeCanvas(10, 10);
-    Konva.htmlCanvas = shittyCanvas.constructor as any;
-    shittyCanvas.dispose();
+      // CanvasKit uses an internal constuctor to connect a Surface to an EmulatedCanvas2D
+      // We need to access it because we want to use an HTML Canvas with the fake CanvasKit HTML Canvas API
+      // So we create a useless canvas and use it to retrieve the internal constructor
+      const shittyCanvas = Konva.canvasKit.MakeCanvas(10, 10);
+      Konva.htmlCanvas = shittyCanvas.constructor as any;
+      shittyCanvas.dispose();
+    })();
+
+    await initCanvasKitPromise;
   },
   canvasKit: null as CanvasKit,
   htmlCanvas: null as new(surface: Surface) => EmulatedCanvas2D,
