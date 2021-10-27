@@ -41,44 +41,7 @@ export interface TransformerConfig extends ContainerConfig {
   shouldOverdrawWholeArea?: boolean;
 }
 
-var EVENTS_NAME = 'tr-konva';
-
-var ATTR_CHANGE_LIST = [
-  'resizeEnabledChange',
-  'rotateAnchorOffsetChange',
-  'rotateEnabledChange',
-  'enabledAnchorsChange',
-  'anchorSizeChange',
-  'borderEnabledChange',
-  'borderStrokeChange',
-  'borderStrokeWidthChange',
-  'borderDashChange',
-  'anchorStrokeChange',
-  'anchorStrokeWidthChange',
-  'anchorFillChange',
-  'anchorCornerRadiusChange',
-  'ignoreStrokeChange',
-]
-  .map((e) => e + `.${EVENTS_NAME}`)
-  .join(' ');
-
 var NODES_RECT = 'nodesRect';
-
-var TRANSFORM_CHANGE_STR = [
-  'widthChange',
-  'heightChange',
-  'scaleXChange',
-  'scaleYChange',
-  'skewXChange',
-  'skewYChange',
-  'rotationChange',
-  'offsetXChange',
-  'offsetYChange',
-  'transformsEnabledChange',
-  'strokeWidthChange',
-]
-  .map((e) => e + `.${EVENTS_NAME}`)
-  .join(' ');
 
 var ANGLES = {
   'top-left': -45,
@@ -243,6 +206,10 @@ export class Transformer extends Group {
   cos: number;
   _cursorChange: boolean;
 
+  attrChangeList: string;
+  transformChangeList: string;
+  eventsName: string;
+
   constructor(config?: TransformerConfig) {
     // call super constructor
     super(config);
@@ -253,8 +220,45 @@ export class Transformer extends Group {
     this._handleMouseUp = this._handleMouseUp.bind(this);
     this.update = this.update.bind(this);
 
+    this.eventsName = `tr-konva-${this._id}`;
+
+    this.attrChangeList = [
+      'resizeEnabledChange',
+      'rotateAnchorOffsetChange',
+      'rotateEnabledChange',
+      'enabledAnchorsChange',
+      'anchorSizeChange',
+      'borderEnabledChange',
+      'borderStrokeChange',
+      'borderStrokeWidthChange',
+      'borderDashChange',
+      'anchorStrokeChange',
+      'anchorStrokeWidthChange',
+      'anchorFillChange',
+      'anchorCornerRadiusChange',
+      'ignoreStrokeChange',
+    ]
+      .map((e) => e + `.${this.eventsName}`)
+      .join(' ');
+
+    this.transformChangeList = [
+      'widthChange',
+      'heightChange',
+      'scaleXChange',
+      'scaleYChange',
+      'skewXChange',
+      'skewYChange',
+      'rotationChange',
+      'offsetXChange',
+      'offsetYChange',
+      'transformsEnabledChange',
+      'strokeWidthChange',
+    ]
+      .map((e) => e + `.${this.eventsName}`)
+      .join(' ');
+
     // update transformer data for certain attr changes
-    this.on(ATTR_CHANGE_LIST, this.update);
+    this.on(this.transformChangeList, this.update);
 
     if (this.getNode()) {
       this.update();
@@ -294,7 +298,7 @@ export class Transformer extends Group {
     }
     this._nodes.forEach((node) => {
       const additionalEvents = node._attrsAffectingSize
-        .map((prop) => prop + 'Change.' + EVENTS_NAME)
+        .map((prop) => prop + 'Change.' + this.eventsName)
         .join(' ');
 
       const onChange = () => {
@@ -308,9 +312,9 @@ export class Transformer extends Group {
         }
       };
       node.on(additionalEvents, onChange);
-      node.on(TRANSFORM_CHANGE_STR, onChange);
-      node.on(`absoluteTransformChange.${EVENTS_NAME}`, onChange);
-      node.on(`xChange.${EVENTS_NAME} yChange.${EVENTS_NAME}`, onChange);
+      node.on(this.transformChangeList, onChange);
+      node.on(`absoluteTransformChange.${this.eventsName}`, onChange);
+      node.on(`xChange.${this.eventsName} yChange.${this.eventsName}`, onChange);
       this._proxyDrag(node);
     });
     this._resetTransformCache();
@@ -325,7 +329,7 @@ export class Transformer extends Group {
 
   _proxyDrag(node: Node) {
     let lastPos;
-    node.on(`dragstart.${EVENTS_NAME}`, (e) => {
+    node.on(`dragstart.${this.eventsName}`, (e) => {
       lastPos = node.getAbsolutePosition();
       // actual dragging of Transformer doesn't make sense
       // but we need to make sure it also has all drag events
@@ -333,7 +337,7 @@ export class Transformer extends Group {
         this.startDrag(e, false);
       }
     });
-    node.on(`dragmove.${EVENTS_NAME}`, (e) => {
+    node.on(`dragmove.${this.eventsName}`, (e) => {
       if (!lastPos) {
         return;
       }
@@ -384,7 +388,7 @@ export class Transformer extends Group {
     // remove events
     if (this._nodes) {
       this._nodes.forEach((node) => {
-        node.off('.' + EVENTS_NAME);
+        node.off('.' + this.eventsName);
       });
     }
     this._nodes = [];
