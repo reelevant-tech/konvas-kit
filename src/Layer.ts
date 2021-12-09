@@ -394,6 +394,8 @@ export class Layer extends Container<Group | Shape> {
 
     const surface = canvas.getContext().surface;
 
+    if (surface.isDeleted()) return this;
+
     if (this.clearBeforeDraw()) {
       canvas.getContext().clear();
     }
