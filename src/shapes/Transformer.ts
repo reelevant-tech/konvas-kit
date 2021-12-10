@@ -257,6 +257,10 @@ export class Transformer extends Group {
       .map((e) => e + `.${this.eventsName}`)
       .join(' ');
 
+    if (typeof config?.nodes !== 'undefined') {
+      this.setNodes(config.nodes);
+    }
+
     // update transformer data for certain attr changes
     this.on(this.transformChangeList, this.update);
 
@@ -287,6 +291,10 @@ export class Transformer extends Group {
   }
 
   setNodes(nodes: Array<Node> = []) {
+    // If object is not properly initialized, don't set nodes (we will do it later)
+    if (typeof this.eventsName === 'undefined')
+      return;
+
     if (this._nodes && this._nodes.length) {
       this.detach();
     }
@@ -1080,7 +1088,6 @@ export class Transformer extends Group {
 
   update() {
     var attrs = this._getNodeRect();
-    this.rotation(Util._getRotation(attrs.rotation));
     var width = attrs.width;
     var height = attrs.height;
 
