@@ -51,9 +51,6 @@ export class RichText extends Shape<RichTextConfig> {
   public wrap!: GetSet<'word' | 'char' | 'none', this>
   public ellipsis!: GetSet<boolean, this>
 
-  private readonly linesWidth!: number
-  private readonly linesHeight!: number
-
   private paragraph: Paragraph
 
   constructor (config: RichTextConfig) {
@@ -68,20 +65,20 @@ export class RichText extends Shape<RichTextConfig> {
     this.computeParagraph()
   }
 
-  public getHeight (): number {
+  public getHeight (auto = false): number {
     const isAuto = this.attrs.height === 'auto' || this.attrs.height === undefined
-    if (!isAuto) {
+    if (!isAuto && auto === false) {
       return this.attrs.height
     }
-    return this.linesHeight + this.padding() * 2
+    return this.paragraph.getHeight()
   }
 
-  public getWidth (): number {
+  public getWidth (auto = false): number {
     const isAuto = this.attrs.width === 'auto' || this.attrs.width === undefined
-    if (!isAuto) {
+    if (!isAuto && auto === false) {
       return this.attrs.width
     }
-    return this.linesWidth + this.padding() * 2
+    return this.paragraph.getMaxIntrinsicWidth()
   }
 
   private computeParagraph () {
