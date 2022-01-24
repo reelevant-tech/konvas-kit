@@ -3,7 +3,7 @@ import { Factory } from '../Factory';
 import { Shape, ShapeConfig } from '../Shape';
 import { getNumberValidator } from '../Validators';
 import { Konva, _registerNode } from '../Global';
-import type { Image as CanvasKitImage } from 'canvaskit-wasm' 
+import type { Image as CanvasKitImage, AnimatedImage } from 'canvaskit-wasm'
 
 import { GetSet, IRect } from '../types';
 import { Context } from '../Context';
@@ -37,23 +37,67 @@ export interface ImageConfig extends ShapeConfig {
  * imageObj.src = '/path/to/image.jpg'
  */
 export class Image extends Shape<ImageConfig> {
-  cachedCanvasKitImg : CanvasKitImage
+  canvasKitImg: CanvasKitImage
+  canvasKitAnimatedImg: AnimatedImage
 
   constructor(attrs: ImageConfig) {
     super(attrs);
     this.on('imageChange.konva', () => {
-      this.cachedCanvasKitImg = null;
       this._setImageLoad();
     });
 
     this._setImageLoad();
   }
-  _setImageLoad() {
+  _setImageLoad () {
     const image = this.image();
 
     if (image) {
-      if (!this.cachedCanvasKitImg) {
-        this.cachedCanvasKitImg = Konva.canvasKit.MakeImageFromEncoded(image)
+      // A static image (png/jpeg) is an animated img with 1 frame
+      this.canvasKitAnimatedImg = Konva.canvasKit.MakeAnimatedImageFromEncoded(image)
+
+      // Return early if we couldn't decode the image
+      if (!this.canvasKitAnimatedImg) {
+        return
+      }
+
+      this.canvasKitImg = this.canvasKitAnimatedImg.makeImageAtCurrentFrame()
+
+      const frameCount = this.canvasKitAnimatedImg.getFrameCount()
+      if (frameCount > 1) {
+        const ticker = this.getLayer().ticker
+
+        // We already displayed first frame, so 1
+        let animationFrame = 1
+        let animationTime = this.canvasKitAnimatedImg.currentFrameDuration()
+
+        ticker.registerAnimation(this.id(), () => {
+          // Loop while animation is late, and don't do anything if on time
+          while (ticker.currentTime >= animationTime) {
+            this.canvasKitAnimatedImg.decodeNextFrame()
+            
+            // Increment animation time by frame duration
+            const frameDuration = this.canvasKitAnimatedImg.currentFrameDuration()
+            animationTime += frameDuration
+
+            // Don't display frame if we know we need to skip it
+            if (ticker.currentTime >= animationTime) {
+              continue
+            }
+
+            // Display frame
+            this.canvasKitImg?.delete()
+            this.canvasKitImg = this.canvasKitAnimatedImg.makeImageAtCurrentFrame()
+
+            // If we are at the end of the animation, end it
+            animationFrame++
+            if (animationFrame >= frameCount) {
+              return undefined
+            }
+          }
+
+          // Return when we need to display next frame
+          return (animationTime - ticker.currentTime)
+        })
       }
     }
   }
@@ -93,8 +137,8 @@ export class Image extends Shape<ImageConfig> {
       context.fillStrokeShape(this);
     }
 
-    if (image && this.cachedCanvasKitImg) {
-      params[0] = this.cachedCanvasKitImg;
+    if (image && this.canvasKitImg) {
+      params[0] = this.canvasKitImg;
       context.drawImage.apply(context, params);
     }
   }
@@ -108,16 +152,18 @@ export class Image extends Shape<ImageConfig> {
     context.fillStrokeShape(this);
   }
   getWidth() {
-    return this.attrs.width ?? this.cachedCanvasKitImg?.width() ?? 100;
+    return this.attrs.width ?? this.canvasKitImg?.width() ?? 100;
   }
   getHeight() {
-    return this.attrs.height ?? this.cachedCanvasKitImg?.height() ?? 100;
+    return this.attrs.height ?? this.canvasKitImg?.height() ?? 100;
   }
-  
+
   destroy() {
     super.destroy();
 
-    this.cachedCanvasKitImg?.delete();
+    this.canvasKitImg?.delete()
+    this.canvasKitAnimatedImg?.delete()
+    this.getLayer()?.ticker.removeAnimation(this.id())
     return this;
   }
 

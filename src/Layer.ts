@@ -10,6 +10,7 @@ import { GetSet, Vector2d } from './types';
 import { Group } from './Group';
 import { Shape, shapes } from './Shape';
 import { Konva, _registerNode } from './Global';
+import { Ticker } from './Ticker';
 
 export interface LayerConfig extends ContainerConfig {
   clearBeforeDraw?: boolean;
@@ -61,6 +62,7 @@ export class Layer extends Container<Group | Shape> {
   });
 
   _waitingForDraw = false;
+  ticker: Ticker;
 
   constructor(config?: LayerConfig) {
     super(config);
@@ -69,6 +71,7 @@ export class Layer extends Container<Group | Shape> {
 
     this.on('imageSmoothingEnabledChange.konva', this._setSmoothEnabled);
     this._setSmoothEnabled();
+    this.ticker = new Ticker(this)
   }
   // for nodejs?
   createPNGStream() {
