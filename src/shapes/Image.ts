@@ -53,54 +53,65 @@ export class Image extends Shape<ImageConfig> {
 
     if (image) {
       // A static image (png/jpeg) is an animated img with 1 frame
+      this.canvasKitAnimatedImg?.delete()
       this.canvasKitAnimatedImg = Konva.canvasKit.MakeAnimatedImageFromEncoded(image)
 
-      // Return early if we couldn't decode the image
-      if (!this.canvasKitAnimatedImg) {
-        return
-      }
-
-      this.canvasKitImg = this.canvasKitAnimatedImg.makeImageAtCurrentFrame()
-
-      const frameCount = this.canvasKitAnimatedImg.getFrameCount()
-      if (frameCount > 1) {
-        const ticker = this.getLayer().ticker
-
-        // We already displayed first frame, so 1
-        let animationFrame = 1
-        let animationTime = this.canvasKitAnimatedImg.currentFrameDuration()
-
-        ticker.registerAnimation(this.id(), () => {
-          // Loop while animation is late, and don't do anything if on time
-          while (ticker.currentTime >= animationTime) {
-            this.canvasKitAnimatedImg.decodeNextFrame()
-            
-            // Increment animation time by frame duration
-            const frameDuration = this.canvasKitAnimatedImg.currentFrameDuration()
-            animationTime += frameDuration
-
-            // Don't display frame if we know we need to skip it
-            if (ticker.currentTime >= animationTime) {
-              continue
-            }
-
-            // Display frame
-            this.canvasKitImg?.delete()
-            this.canvasKitImg = this.canvasKitAnimatedImg.makeImageAtCurrentFrame()
-
-            // If we are at the end of the animation, end it
-            animationFrame++
-            if (animationFrame >= frameCount) {
-              return undefined
-            }
-          }
-
-          // Return when we need to display next frame
-          return (animationTime - ticker.currentTime)
-        })
-      }
+      this._startAnimation()
     }
   }
+
+  _startAnimation () {
+    // Return early if we couldn't decode the image
+    if (!this.canvasKitAnimatedImg) {
+      return
+    }
+
+    this.canvasKitAnimatedImg.reset()
+
+    this.canvasKitImg?.delete()
+    this.canvasKitImg = this.canvasKitAnimatedImg.makeImageAtCurrentFrame()
+
+    const frameCount = this.canvasKitAnimatedImg.getFrameCount()
+    if (frameCount <= 1) {
+      return
+    }
+
+    const ticker = this.getLayer().ticker
+
+    // We already displayed first frame, so 1
+    let animationFrame = 1
+    let animationTime = this.canvasKitAnimatedImg.currentFrameDuration()
+
+    ticker.registerAnimation(this.id(), () => {
+      // Loop while animation is late, and don't do anything if on time
+      while (ticker.currentTime >= animationTime) {
+        this.canvasKitAnimatedImg.decodeNextFrame()
+        
+        // Increment animation time by frame duration
+        const frameDuration = this.canvasKitAnimatedImg.currentFrameDuration()
+        animationTime += frameDuration
+
+        // Don't display frame if we know we need to skip it
+        if (ticker.currentTime >= animationTime) {
+          continue
+        }
+
+        // Display frame
+        this.canvasKitImg?.delete()
+        this.canvasKitImg = this.canvasKitAnimatedImg.makeImageAtCurrentFrame()
+
+        // If we are at the end of the animation, end it
+        animationFrame++
+        if (animationFrame >= frameCount) {
+          return undefined
+        }
+      }
+
+      // Return when we need to display next frame
+      return (animationTime - ticker.currentTime)
+    }, () => this._startAnimation())
+  }
+
   _useBufferCanvas() {
     return super._useBufferCanvas(true);
   }
@@ -163,7 +174,7 @@ export class Image extends Shape<ImageConfig> {
 
     this.canvasKitImg?.delete()
     this.canvasKitAnimatedImg?.delete()
-    this.getLayer()?.ticker.removeAnimation(this.id())
+    this.getLayer()?.ticker.unregisterAnimation(this.id())
     return this;
   }
 

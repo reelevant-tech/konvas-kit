@@ -1,5 +1,10 @@
 import { Layer } from "./Layer"
 
+type Animation = {
+  loop: () => number
+  reset?: () => void
+}
+
 /**
  * @description The ticker manages all animation in a specific layer.
  * You can register a new animation by calling `registerAnimation` and passing a callback.
@@ -10,7 +15,8 @@ import { Layer } from "./Layer"
  * All animation should at some point be unregistered with the current design.
  */
 export class Ticker {
-  animations = new Map<string, () => number>()
+  animations = new Map<string, Animation>()
+  activeAnimations = new Set<string>()
   initDate: number
 
   /**
@@ -29,36 +35,41 @@ export class Ticker {
 
   /**
    * @description Register an animation
-   * @param cb Callback to run on each frame. Returns when it would like to be called next, without any warranty
+   * @param loop Callback to run on each frame. Returns when it would like to be called next, without any warranty
+   * @param reset Callback to run if we want to replay animation
    */
-  registerAnimation (id: string, cb: () => number) {
-    this.animations.set(id, cb)
+  registerAnimation (id: string, loop: () => number, reset?: () => void) {
+    this.animations.set(id, { loop, reset })
+    this.activeAnimations.add(id)
 
     if (typeof window !== 'undefined') {
-      if (this.animations.size === 1) {
+      if (this.activeAnimations.size === 1) {
         this.startPreview()
-      } else if (this.animations.size > 1) {
+      } else if (this.activeAnimations.size > 1) {
         // An animation loop is already running, cancel timeout & run immediatly
         clearTimeout(this.previewTimeout)
         this.previewLoop()
       }
     }
-
   }
 
   /**
-   * @description Unregister an animation
+   * @description Stop an animation
    */
-  removeAnimation (id: string) {
-    if (!this.animations.has(id)) {
-      return
-    }
+  stopAnimation (id: string) {
+    this.activeAnimations.delete(id)
 
-    this.animations.delete(id)
-
-    if (typeof window !== 'undefined' && this.animations.size === 0) {
+    if (typeof window !== 'undefined' && this.activeAnimations.size === 0) {
       clearTimeout(this.previewTimeout)
     }
+  }
+
+  /**
+   * @description Stop and unregister animation
+   */
+  unregisterAnimation (id: string) {
+    this.stopAnimation(id)
+    this.animations.delete(id)
   }
 
   /**
@@ -67,11 +78,12 @@ export class Ticker {
   moveForward () {
     const requestedTimes = []
 
-    for (const [id, cb] of this.animations.entries()) {
-      const requestedTime = cb()
+    for (const id of this.activeAnimations) {
+      const animation = this.animations.get(id)
+      const requestedTime = animation.loop()
 
       if (requestedTime === undefined) {
-        this.removeAnimation(id)
+        this.stopAnimation(id)
       } else {
         requestedTimes.push(requestedTime)
       }
@@ -92,7 +104,7 @@ export class Ticker {
    * @description Move all animation to real time
    */
   private previewLoop () {
-    if (this.animations.size === 0) {
+    if (this.activeAnimations.size === 0) {
       this.previewStartTime = undefined
       return
     }
@@ -121,5 +133,21 @@ export class Ticker {
     this.previewStartTime = Date.now()
 
     this.previewLoop()
+  }
+
+  /**
+   * @description Replay all animations
+   */
+  replayPreview () {
+    this.currentTime = 0
+    this.previewStartTime = undefined
+    clearTimeout(this.previewTimeout)
+
+    for (const [id, animation] of this.animations.entries()) {
+      animation.reset?.()
+      this.activeAnimations.add(id)
+    }
+
+    this.startPreview()
   }
 }
