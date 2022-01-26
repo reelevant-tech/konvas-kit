@@ -1,7 +1,7 @@
 import { Layer } from "./Layer"
 
 type Animation = {
-  loop: () => number
+  loop: () => number | undefined
   reset?: () => void
 }
 
@@ -38,7 +38,7 @@ export class Ticker {
    * @param loop Callback to run on each frame. Returns when it would like to be called next, without any warranty
    * @param reset Callback to run if we want to replay animation
    */
-  registerAnimation (id: string, loop: () => number, reset?: () => void) {
+  registerAnimation (id: string, loop: () => number | undefined, reset?: () => void) {
     this.animations.set(id, { loop, reset })
     this.activeAnimations.add(id)
 
