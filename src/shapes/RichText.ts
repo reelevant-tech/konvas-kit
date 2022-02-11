@@ -93,19 +93,20 @@ export class RichText extends Shape<RichTextConfig> {
     if (this.height() < paragraph.getHeight()) {
       const lines = paragraph.getShapedLines()
 
-      // For a unknown reason, paragraph can be "too small" even if no line overflows
-      let maxLength = lines[lines.length - 1].textRange.last
-
-      for (const line of lines) {
-        if (line.bottom > this.height()) {
-          maxLength = line.textRange.first
-          break
+      if (lines.length > 0) {
+        // For a unknown reason, paragraph can be "too small" even if no line overflows
+        let maxLength = lines[lines.length - 1].textRange.last
+        for (const line of lines) {
+          if (line.bottom > this.height()) {
+            maxLength = line.textRange.first
+            break
+          }
         }
-      }
 
-      paragraph.delete()
-      paragraph = this.buildParagraph(maxLength)
-      paragraph.layout(width)
+        paragraph.delete()
+        paragraph = this.buildParagraph(maxLength)
+        paragraph.layout(width)
+      }
     }
 
     this.paragraph = paragraph
