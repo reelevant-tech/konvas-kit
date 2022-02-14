@@ -2,7 +2,7 @@ import { Layer } from "./Layer"
 
 type Animation = {
   metadata: Record<string, unknown>
-  loop: () => number | undefined
+  loop: () => number
   reset?: () => void
 }
 
@@ -10,10 +10,10 @@ type Animation = {
  * @description The ticker manages all animation in a specific layer.
  * You can register a new animation by calling `registerAnimation` and passing a callback.
  * When your callback is called, you are responsible to sync the animation with the `currentTime`.
- * You need to return from this callback the duration when you would like the callback to be called again.
+ * You need to return from this callback the duration when you would like the callback to be called again (e.g. the duration of the frame).
  * The callback can be called at any time, there is no warranty the requested time will be respected.
- * If you want to end your animation, you can return `undefined` or call `removeAnimation`.
- * All animation should at some point be unregistered with the current design.
+ * If you want to end your animation, you should call `stopAnimation`.
+ * All animation should at some point be stopped with the current design to avoid infinity loops.
  */
 export class Ticker {
   animations = new Map<string, Animation>()
@@ -40,7 +40,7 @@ export class Ticker {
    * @param reset Callback to run if we want to replay animation
    * @param metadata User metadata
    */
-  registerAnimation (id: string, loop: () => number | undefined, reset?: () => void, metadata: Record<string, unknown> = {}) {
+  registerAnimation (id: string, loop: () => number, reset?: () => void, metadata: Record<string, unknown> = {}) {
     this.animations.set(id, { loop, reset, metadata })
     this.activeAnimations.add(id)
 
@@ -83,15 +83,10 @@ export class Ticker {
     for (const id of this.activeAnimations) {
       const animation = this.animations.get(id)
       const requestedTime = animation.loop()
-
-      if (requestedTime === undefined) {
-        this.stopAnimation(id)
-      } else {
-        requestedTimes.push(requestedTime)
-      }
+      requestedTimes.push(requestedTime)
     }
 
-    if (requestedTimes.length === 0) {
+    if (requestedTimes.length === 0) { // nothing was run
       return undefined
     }
 
@@ -118,7 +113,7 @@ export class Ticker {
 
     this.layer.drawScene()
 
-    if (willRenderIn !== undefined) {
+    if (willRenderIn !== undefined && this.activeAnimations.size > 0) {
       this.previewTimeout = setTimeout(() => {
         this.previewLoop()
       }, willRenderIn)

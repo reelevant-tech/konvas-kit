@@ -103,7 +103,8 @@ export class Image extends Shape<ImageConfig> {
         // If we are at the end of the animation, end it
         animationFrame++
         if (animationFrame >= frameCount) {
-          return undefined
+          ticker.stopAnimation(this.id())
+          break
         }
       }
 
