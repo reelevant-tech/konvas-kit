@@ -140,7 +140,7 @@ export class Image extends Shape<ImageConfig> {
         Konva.canvasKit.Matrix.scaled(xScale, yScale)
       );
       paint.setShader(shader);
-      skCanvas.drawPaint(paint);
+      skCanvas.drawRect(Konva.canvasKit.LTRBRect(0, 0, width, height), paint);
       paint.delete();
       shader.delete();
     }
