@@ -6,11 +6,10 @@ import { Konva, _registerNode } from '../Global';
 import type { Image as CanvasKitImage, AnimatedImage } from 'canvaskit-wasm'
 
 import { GetSet, IRect } from '../types';
-import { Context } from '../Context';
+import { Context, SceneContext } from '../Context';
 
 export interface ImageConfig extends ShapeConfig {
   image: ArrayBuffer | undefined;
-  crop?: IRect;
 }
 
 /**
@@ -20,7 +19,6 @@ export interface ImageConfig extends ShapeConfig {
  * @augments Konva.Shape
  * @param {Object} config
  * @param {Image} config.image
- * @param {Object} [config.crop]
  * @@shapeParams
  * @@nodeParams
  * @example
@@ -116,31 +114,10 @@ export class Image extends Shape<ImageConfig> {
   _useBufferCanvas() {
     return super._useBufferCanvas(true);
   }
-  _sceneFunc(context: Context) {
+  _sceneFunc(context: SceneContext) {
     const width = this.getWidth();
     const height = this.getHeight();
     const image = this.attrs.image;
-    let params;
-
-    if (image) {
-      const cropWidth = this.attrs.cropWidth;
-      const cropHeight = this.attrs.cropHeight;
-      if (cropWidth && cropHeight) {
-        params = [
-          image,
-          this.cropX(),
-          this.cropY(),
-          cropWidth,
-          cropHeight,
-          0,
-          0,
-          width,
-          height,
-        ];
-      } else {
-        params = [image, 0, 0, width, height];
-      }
-    }
 
     if (this.hasFill() || this.hasStroke()) {
       context.beginPath();
@@ -150,8 +127,22 @@ export class Image extends Shape<ImageConfig> {
     }
 
     if (image && this.canvasKitImg) {
-      params[0] = this.canvasKitImg;
-      context.drawImage.apply(context, params);
+      // src: https://github.com/google/skia/blob/652d790355b524953c8e913d4e8ea6ce70d77cff/modules/canvaskit/tests/canvas.spec.js#L648 since https://github.com/google/skia/commit/652d790355b524953c8e913d4e8ea6ce70d77cff
+      const skCanvas = context.surface.getCanvas()
+      const paint = new Konva.canvasKit.Paint();
+      const xScale = width / this.canvasKitImg.width()
+      const yScale = height / this.canvasKitImg.height()
+      // Using shader cubic allows us to render better images than with context.drawImage()
+      const shader = this.canvasKitImg.makeShaderCubic(
+        Konva.canvasKit.TileMode.Decal,
+        Konva.canvasKit.TileMode.Clamp,
+        1/3 /*B*/, 1/3 /*C*/,
+        Konva.canvasKit.Matrix.scaled(xScale, yScale)
+      );
+      paint.setShader(shader);
+      skCanvas.drawPaint(paint);
+      paint.delete();
+      shader.delete();
     }
   }
   _hitFunc(context) {
@@ -180,11 +171,6 @@ export class Image extends Shape<ImageConfig> {
   }
 
   image: GetSet<ArrayBuffer | undefined, this>;
-  crop: GetSet<IRect, this>;
-  cropX: GetSet<number, this>;
-  cropY: GetSet<number, this>;
-  cropWidth: GetSet<number, this>;
-  cropHeight: GetSet<number, this>;
 }
 
 Image.prototype.className = 'Image';
@@ -204,86 +190,3 @@ _registerNode(Image);
  */
 Factory.addGetterSetter(Image, 'image');
 
-Factory.addComponentsGetterSetter(Image, 'crop', ['x', 'y', 'width', 'height']);
-/**
- * get/set crop
- * @method
- * @name Konva.Image#crop
- * @param {Object} crop
- * @param {Number} crop.x
- * @param {Number} crop.y
- * @param {Number} crop.width
- * @param {Number} crop.height
- * @returns {Object}
- * @example
- * // get crop
- * var crop = image.crop();
- *
- * // set crop
- * image.crop({
- *   x: 20,
- *   y: 20,
- *   width: 20,
- *   height: 20
- * });
- */
-
-Factory.addGetterSetter(Image, 'cropX', 0, getNumberValidator());
-/**
- * get/set crop x
- * @method
- * @name Konva.Image#cropX
- * @param {Number} x
- * @returns {Number}
- * @example
- * // get crop x
- * var cropX = image.cropX();
- *
- * // set crop x
- * image.cropX(20);
- */
-
-Factory.addGetterSetter(Image, 'cropY', 0, getNumberValidator());
-/**
- * get/set crop y
- * @name Konva.Image#cropY
- * @method
- * @param {Number} y
- * @returns {Number}
- * @example
- * // get crop y
- * var cropY = image.cropY();
- *
- * // set crop y
- * image.cropY(20);
- */
-
-Factory.addGetterSetter(Image, 'cropWidth', 0, getNumberValidator());
-/**
- * get/set crop width
- * @name Konva.Image#cropWidth
- * @method
- * @param {Number} width
- * @returns {Number}
- * @example
- * // get crop width
- * var cropWidth = image.cropWidth();
- *
- * // set crop width
- * image.cropWidth(20);
- */
-
-Factory.addGetterSetter(Image, 'cropHeight', 0, getNumberValidator());
-/**
- * get/set crop height
- * @name Konva.Image#cropHeight
- * @method
- * @param {Number} height
- * @returns {Number}
- * @example
- * // get crop height
- * var cropHeight = image.cropHeight();
- *
- * // set crop height
- * image.cropHeight(20);
- */
