@@ -9,7 +9,7 @@ type Animation = {
 /**
  * @description The ticker manages all animation in a specific layer.
  * You can register a new animation by calling `registerAnimation` and passing a callback.
- * When your callback is called, you are responsible to sync the animation with the `currentTime`.
+ * When your callback is called, you are responsible to sync the animation with the `elapsedTime`.
  * You need to return from this callback the duration when you would like the callback to be called again (e.g. the duration of the frame).
  * The callback can be called at any time, there is no warranty the requested time will be respected.
  * If you want to end your animation, you should call `stopAnimation`.
@@ -25,7 +25,14 @@ export class Ticker {
    * You should sync your animation to that time when the `registerAnimation` callback is called.
    * We use it because we want to export frames at a differente rate than real time.
    */
-  currentTime = 0
+  elapsedTime = 0
+
+  /**
+   * @description Timestamp in ms for the current frame we're rendering
+   * We should use this value instead of Date.now() since we could export frames
+   * quicker than the time pass
+   */
+  currentTime: number
 
   previewStartTime: number
   previewTimeout: ReturnType<typeof setTimeout>
@@ -78,6 +85,9 @@ export class Ticker {
    * @description Called before drawing next frame
    */
   moveForward () {
+    if (typeof this.currentTime === 'undefined') {
+      this.currentTime = Date.now()
+    }
     const requestedTimes = []
 
     for (const id of this.activeAnimations) {
@@ -91,6 +101,7 @@ export class Ticker {
     }
 
     const willRenderIn = Math.min(...requestedTimes)
+    this.elapsedTime += willRenderIn
     this.currentTime += willRenderIn
 
     return willRenderIn
@@ -106,8 +117,9 @@ export class Ticker {
       return
     }
 
-    // Force currentTime to real time, because this is a preview
-    this.currentTime = Date.now() - this.previewStartTime
+    // Force elapsedTime to real time, because this is a preview
+    this.elapsedTime = Date.now() - this.previewStartTime
+    this.currentTime = Date.now()
 
     const willRenderIn = this.moveForward()
 
@@ -136,7 +148,7 @@ export class Ticker {
    * @description Replay all animations
    */
   replayPreview () {
-    this.currentTime = 0
+    this.elapsedTime = 0
     this.previewStartTime = undefined
     clearTimeout(this.previewTimeout)
 

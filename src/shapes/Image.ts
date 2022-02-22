@@ -84,7 +84,7 @@ export class Image extends Shape<ImageConfig> {
 
     ticker.registerAnimation(this.id(), () => {
       // Loop while animation is late, and don't do anything if on time
-      while (ticker.currentTime >= animationTime) {
+      while (ticker.elapsedTime >= animationTime) {
         this.canvasKitAnimatedImg.decodeNextFrame()
         
         // Increment animation time by frame duration
@@ -92,7 +92,7 @@ export class Image extends Shape<ImageConfig> {
         animationTime += frameDuration
 
         // Don't display frame if we know we need to skip it
-        if (ticker.currentTime >= animationTime) {
+        if (ticker.elapsedTime >= animationTime) {
           continue
         }
 
@@ -109,7 +109,7 @@ export class Image extends Shape<ImageConfig> {
       }
 
       // Return when we need to display next frame
-      return (animationTime - ticker.currentTime)
+      return (animationTime - ticker.elapsedTime)
     }, () => this._startAnimation())
   }
 
