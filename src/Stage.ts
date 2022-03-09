@@ -159,7 +159,7 @@ export class Stage extends Container<Layer> {
   _changedPointerPositions: (Vector2d & { id: number })[] = [];
 
   bufferCanvas: SceneCanvas;
-  bufferHitCanvas: HitCanvas;
+  bufferHitCanvas: HitCanvas | undefined;
   _mouseTargetShape: Shape;
   _touchTargetShape: Shape;
   _pointerTargetShape: Shape;
@@ -174,7 +174,7 @@ export class Stage extends Container<Layer> {
   _touchDblTimeout: any;
   _pointerDblTimeout: any;
 
-  constructor(config: StageConfig) {
+  constructor(private config: StageConfig) {
     super(checkNoClip(config));
     this._buildDOM();
     this._bindContentEvents();
@@ -270,7 +270,7 @@ export class Stage extends Container<Layer> {
     super.destroy();
 
     this.bufferCanvas.destroy();
-    this.bufferHitCanvas.destroy();
+    this.bufferHitCanvas?.destroy();
 
     var content = this.content;
     if (content && Util._isInDocument(content)) {
@@ -401,7 +401,7 @@ export class Stage extends Container<Layer> {
     }
 
     this.bufferCanvas.setSize(width, height);
-    this.bufferHitCanvas.setSize(width, height);
+    this.bufferHitCanvas?.setSize(width, height);
 
     // set layer dimensions
     this.children.forEach((layer) => {
@@ -892,11 +892,11 @@ export class Stage extends Container<Layer> {
       width: this.width(),
       height: this.height(),
     });
-    this.bufferHitCanvas = new HitCanvas({
+    this.bufferHitCanvas = this.config.listening !== false ? new HitCanvas({
       pixelRatio: 1,
       width: this.width(),
       height: this.height(),
-    });
+    }) : undefined;
 
     if (!Konva.isBrowser) {
       return;

@@ -351,15 +351,17 @@ export abstract class Node<Config extends NodeConfig = NodeConfig> {
         width: 0,
         height: 0,
       }),
-      cachedHitCanvas = new HitCanvas({
+      cachedHitCanvas = this.getLayer().listening() !== false ? new HitCanvas({
         pixelRatio: hitCanvasPixelRatio,
         width: width,
         height: height,
-      }),
+      }) : undefined,
       sceneContext = cachedSceneCanvas.getContext(),
-      hitContext = cachedHitCanvas.getContext();
+      hitContext = cachedHitCanvas?.getContext();
 
-    cachedHitCanvas.isCache = true;
+    if (typeof cachedHitCanvas !== 'undefined') {
+      cachedHitCanvas.isCache = true;
+    }
     cachedSceneCanvas.isCache = true;
 
     this._cache.delete(CANVAS);
@@ -382,7 +384,9 @@ export abstract class Node<Config extends NodeConfig = NodeConfig> {
     this._clearSelfAndDescendantCache(ABSOLUTE_SCALE);
 
     this.drawScene(cachedSceneCanvas, this);
-    this.drawHit(cachedHitCanvas, this);
+    if (typeof cachedHitCanvas !== 'undefined') {
+      this.drawHit(cachedHitCanvas, this);
+    }
     this._isUnderCache = false;
 
     sceneContext.restore();
@@ -522,6 +526,9 @@ export abstract class Node<Config extends NodeConfig = NodeConfig> {
   _drawCachedHitCanvas(context: Context) {
     var canvasCache = this._getCanvasCache(),
       hitCanvas = canvasCache.hit;
+    if (typeof hitCanvas === 'undefined') {
+      return
+    }
     context.save();
     context.translate(canvasCache.x, canvasCache.y);
     context.drawImage(

@@ -57,9 +57,7 @@ var HASH = '#',
 
 export class Layer extends Container<Group | Shape> {
   canvas = new SceneCanvas();
-  hitCanvas = new HitCanvas({
-    pixelRatio: 1,
-  });
+  hitCanvas?: HitCanvas
 
   _waitingForDraw = false;
   ticker: Ticker;
@@ -72,6 +70,11 @@ export class Layer extends Container<Group | Shape> {
     this.on('imageSmoothingEnabledChange.konva', this._setSmoothEnabled);
     this._setSmoothEnabled();
     this.ticker = new Ticker(this)
+    if (config.listening !== false) {
+      this.hitCanvas = new HitCanvas({
+        pixelRatio: 1,
+      });
+    }
   }
   // for nodejs?
   createPNGStream() {
@@ -113,7 +116,7 @@ export class Layer extends Container<Group | Shape> {
   // TODO: deprecate this method
   clear(bounds?) {
     this.getContext().clear(bounds);
-    this.getHitCanvas().getContext().clear(bounds);
+    this.getHitCanvas()?.getContext().clear(bounds);
     return this;
   }
   // extend Node.prototype.setZIndex
@@ -218,7 +221,7 @@ export class Layer extends Container<Group | Shape> {
   }
   setSize({ width, height }) {
     this.canvas.setSize(width, height);
-    this.hitCanvas.setSize(width, height);
+    this.hitCanvas?.setSize(width, height);
     this._setSmoothEnabled();
     return this;
   }
@@ -357,6 +360,9 @@ export class Layer extends Container<Group | Shape> {
     }
   }
   _getIntersection(pos: Vector2d): { shape?: Shape; antialiased?: boolean } {
+    if (typeof this.hitCanvas === 'undefined') {
+      return {};
+    }
     const ratio = this.hitCanvas.pixelRatio;
     const p = this.hitCanvas.context.getImageData(
       Math.round(pos.x * ratio),
@@ -414,6 +420,9 @@ export class Layer extends Container<Group | Shape> {
     return this;
   }
   drawHit(can?: HitCanvas, top?: Node) {
+    if (typeof this.hitCanvas === 'undefined') {
+      return this;
+    }
     var layer = this.getLayer(),
       canvas = can || (layer && layer.hitCanvas);
 
@@ -465,7 +474,7 @@ export class Layer extends Container<Group | Shape> {
    * @method
    */
   toggleHitCanvas() {
-    if (!this.parent || !this.parent['content']) {
+    if (!this.parent || !this.parent['content'] || typeof this.hitCanvas === 'undefined') {
       return;
     }
     var parent = this.parent as any;
@@ -480,7 +489,7 @@ export class Layer extends Container<Group | Shape> {
   destroy() {
     super.destroy();
 
-    this.hitCanvas.destroy();
+    this.hitCanvas?.destroy();
     this.canvas.destroy();
     return this;
   }

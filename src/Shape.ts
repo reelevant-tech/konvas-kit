@@ -425,6 +425,9 @@ export class Shape<
       bufferHitCanvas = stage.bufferHitCanvas,
       p;
 
+    if (typeof bufferHitCanvas === 'undefined') {
+      return false
+    }
     bufferHitCanvas.getContext().clear();
     this.drawHit(bufferHitCanvas, null, true);
     p = bufferHitCanvas.context.getImageData(
