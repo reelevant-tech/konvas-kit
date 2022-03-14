@@ -134,8 +134,9 @@ export class Image extends Shape<ImageConfig> {
       const yScale = height / this.canvasKitImg.height()
       // Using shader cubic allows us to render better images than with context.drawImage()
       const shader = this.canvasKitImg.makeShaderCubic(
-        Konva.canvasKit.TileMode.Decal,
-        Konva.canvasKit.TileMode.Clamp,
+        Konva.canvasKit.TileMode.Decal, // Only draw within the original domain, return transparent-black everywhere else.
+        Konva.canvasKit.TileMode.Decal, // Only draw within the original domain, return transparent-black everywhere else.
+        // see https://entropymine.com/imageworsener/bicubic/
         1/3 /*B*/, 1/3 /*C*/,
         Konva.canvasKit.Matrix.scaled(xScale, yScale)
       );
