@@ -429,7 +429,9 @@ export class Stage extends Container<Layer> {
     layer.setSize({ width: this.width(), height: this.height() });
 
     // draw layer and append canvas to container
-    layer.draw();
+    if (Konva.autoDrawEnabled) {
+      layer.draw();
+    }
 
     if (Konva.isBrowser) {
       this.content.appendChild(layer.canvas._canvas);
