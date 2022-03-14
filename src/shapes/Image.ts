@@ -129,21 +129,13 @@ export class Image extends Shape<ImageConfig> {
     if (image && this.canvasKitImg) {
       // src: https://github.com/google/skia/blob/652d790355b524953c8e913d4e8ea6ce70d77cff/modules/canvaskit/tests/canvas.spec.js#L648 since https://github.com/google/skia/commit/652d790355b524953c8e913d4e8ea6ce70d77cff
       const skCanvas = context.surface.getCanvas()
-      const paint = new Konva.canvasKit.Paint();
-      const xScale = width / this.canvasKitImg.width()
-      const yScale = height / this.canvasKitImg.height()
-      // Using shader cubic allows us to render better images than with context.drawImage()
-      const shader = this.canvasKitImg.makeShaderCubic(
-        Konva.canvasKit.TileMode.Decal, // Only draw within the original domain, return transparent-black everywhere else.
-        Konva.canvasKit.TileMode.Decal, // Only draw within the original domain, return transparent-black everywhere else.
-        // see https://entropymine.com/imageworsener/bicubic/
-        1/3 /*B*/, 1/3 /*C*/,
-        Konva.canvasKit.Matrix.scaled(xScale, yScale)
-      );
-      paint.setShader(shader);
-      skCanvas.drawRect(Konva.canvasKit.LTRBRect(0, 0, width, height), paint);
-      paint.delete();
-      shader.delete();
+      skCanvas.drawImageRectOptions(
+        this.canvasKitImg,
+        Konva.canvasKit.LTRBRect(0, 0, this.canvasKitImg.width(), this.canvasKitImg.height()), // we take the full image
+        Konva.canvasKit.LTRBRect(0, 0, width, height), // scale it to width+height wanted
+        Konva.canvasKit.FilterMode.Linear, // linear sampling (better than nearest which doesn't seems fast but produce lower image quality)
+        Konva.canvasKit.MipmapMode.None
+      )
     }
   }
   _hitFunc(context) {
