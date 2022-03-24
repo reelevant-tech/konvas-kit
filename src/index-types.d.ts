@@ -43,8 +43,6 @@ declare namespace Konva {
   export const initCanvasKit: (options: CanvasKitInitOptions) => Promise<void>;
   export const canvasKit: CanvasKit;
   export const htmlCanvas: new(surface: Surface) => EmulatedCanvas2D;
-  export const initFontMgr: () => void;
-  export const typefaceFontProvider: TypefaceFontProvider;
 
   export type Vector2d = import('./types').Vector2d;
 

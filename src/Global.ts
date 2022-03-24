@@ -15,7 +15,7 @@ var PI_OVER_180 = Math.PI / 180;
  */
 
 
-import type { CanvasKit, Surface, EmulatedCanvas2D, CanvasKitInitOptions, TypefaceFontProvider } from 'canvaskit-wasm'
+import type { CanvasKit, Surface, EmulatedCanvas2D, CanvasKitInitOptions } from 'canvaskit-wasm'
 const CanvasKitInit = require('canvaskit-wasm/bin/canvaskit.js');
 
 function detectBrowser() {
@@ -189,11 +189,7 @@ export const Konva = {
     await initCanvasKitPromise;
   },
   canvasKit: null as CanvasKit,
-  htmlCanvas: null as new(surface: Surface) => EmulatedCanvas2D,
-  initFontMgr() {
-    Konva.typefaceFontProvider = Konva.canvasKit.TypefaceFontProvider.Make()
-  },
-  typefaceFontProvider: null as TypefaceFontProvider
+  htmlCanvas: null as new(surface: Surface) => EmulatedCanvas2D
 };
 
 export const _registerNode = (NodeClass: any) => {

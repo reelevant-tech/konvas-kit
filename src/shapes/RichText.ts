@@ -137,7 +137,7 @@ export class RichText extends Shape<RichTextConfig> {
       maxLines: Math.pow(2, 32) - 2 // Max CPP int
     })
 
-    const builder = Konva.canvasKit.ParagraphBuilder.MakeFromFontProvider(paraStyle, Konva.typefaceFontProvider)
+    const builder = Konva.canvasKit.ParagraphBuilder.MakeFromFontProvider(paraStyle, this.getStage().typefaceFontProvider)
 
     const parts = this.textParts()
 

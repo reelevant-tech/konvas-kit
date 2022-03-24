@@ -9,6 +9,7 @@ import { Layer } from './Layer';
 import { DD } from './DragAndDrop';
 import { _registerNode } from './Global';
 import * as PointerEvents from './PointerEvents';
+import type { TypefaceFontProvider } from 'canvaskit-wasm';
 
 export interface StageConfig extends ContainerConfig {
   container: HTMLDivElement | string;
@@ -160,6 +161,7 @@ export class Stage extends Container<Layer> {
 
   bufferCanvas: SceneCanvas;
   bufferHitCanvas: HitCanvas | undefined;
+  typefaceFontProvider: TypefaceFontProvider
   _mouseTargetShape: Shape;
   _touchTargetShape: Shape;
   _pointerTargetShape: Shape;
@@ -176,6 +178,7 @@ export class Stage extends Container<Layer> {
 
   constructor(private config: StageConfig) {
     super(checkNoClip(config));
+    this.typefaceFontProvider = Konva.canvasKit.TypefaceFontProvider.Make()
     this._buildDOM();
     this._bindContentEvents();
     stages.push(this);
@@ -271,6 +274,7 @@ export class Stage extends Container<Layer> {
 
     this.bufferCanvas.destroy();
     this.bufferHitCanvas?.destroy();
+    this.typefaceFontProvider.delete();
 
     var content = this.content;
     if (content && Util._isInDocument(content)) {
