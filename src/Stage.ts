@@ -161,7 +161,6 @@ export class Stage extends Container<Layer> {
 
   bufferCanvas: SceneCanvas;
   bufferHitCanvas: HitCanvas | undefined;
-  typefaceFontProvider: TypefaceFontProvider
   _mouseTargetShape: Shape;
   _touchTargetShape: Shape;
   _pointerTargetShape: Shape;
@@ -176,9 +175,8 @@ export class Stage extends Container<Layer> {
   _touchDblTimeout: any;
   _pointerDblTimeout: any;
 
-  constructor(private config: StageConfig) {
+  constructor(private config: StageConfig, public typefaceFontProvider: TypefaceFontProvider = Stage.createFontProvider()) {
     super(checkNoClip(config));
-    this.typefaceFontProvider = Konva.canvasKit.TypefaceFontProvider.Make()
     this._buildDOM();
     this._bindContentEvents();
     stages.push(this);
@@ -190,6 +188,10 @@ export class Stage extends Container<Layer> {
       }
     );
     this._checkVisibility();
+  }
+
+  public static createFontProvider () {
+    return Konva.canvasKit.TypefaceFontProvider.Make()
   }
 
   _validateAdd(child) {
