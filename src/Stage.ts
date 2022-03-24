@@ -175,7 +175,7 @@ export class Stage extends Container<Layer> {
   _touchDblTimeout: any;
   _pointerDblTimeout: any;
 
-  constructor(private config: StageConfig, public typefaceFontProvider: TypefaceFontProvider = Stage.createFontProvider()) {
+  constructor(private config: StageConfig) {
     super(checkNoClip(config));
     this._buildDOM();
     this._bindContentEvents();
@@ -188,10 +188,6 @@ export class Stage extends Container<Layer> {
       }
     );
     this._checkVisibility();
-  }
-
-  public static createFontProvider () {
-    return Konva.canvasKit.TypefaceFontProvider.Make()
   }
 
   _validateAdd(child) {
@@ -276,7 +272,6 @@ export class Stage extends Container<Layer> {
 
     this.bufferCanvas.destroy();
     this.bufferHitCanvas?.destroy();
-    this.typefaceFontProvider.delete();
 
     var content = this.content;
     if (content && Util._isInDocument(content)) {

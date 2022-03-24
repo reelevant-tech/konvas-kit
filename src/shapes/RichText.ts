@@ -5,7 +5,7 @@ import { _registerNode } from '../Global'
 import { Shape, ShapeConfig } from '../Shape'
 import { GetSet } from '../types'
 import { getNumberOrAutoValidator, getNumberValidator, getBooleanValidator } from '../Validators'
-import { Paragraph } from 'canvaskit-wasm'
+import { Paragraph, TypefaceFontProvider } from 'canvaskit-wasm'
 
 type Color = {
   r: number
@@ -53,7 +53,11 @@ export class RichText extends Shape<RichTextConfig> {
 
   private paragraph: Paragraph
 
-  constructor (config: RichTextConfig) {
+  public static createFontProvider () {
+    return Konva.canvasKit.TypefaceFontProvider.Make()
+  }
+
+  constructor (config: RichTextConfig, private typefaceFontProvider: TypefaceFontProvider) {
     super(config)
 
     for (const attr of [
@@ -137,7 +141,7 @@ export class RichText extends Shape<RichTextConfig> {
       maxLines: Math.pow(2, 32) - 2 // Max CPP int
     })
 
-    const builder = Konva.canvasKit.ParagraphBuilder.MakeFromFontProvider(paraStyle, this.getStage().typefaceFontProvider)
+    const builder = Konva.canvasKit.ParagraphBuilder.MakeFromFontProvider(paraStyle, this.typefaceFontProvider)
 
     const parts = this.textParts()
 
