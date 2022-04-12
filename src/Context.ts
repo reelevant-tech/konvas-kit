@@ -745,10 +745,17 @@ export class SceneContext extends Context {
       const height = Math.max(htmlCanvas.height, 10);
 
       this.surface = Konva.canvasKit.MakeSurface(width, height);
+      if (this.surface === null) {
+        // see https://github.com/reelevant-tech/contents/issues/295
+        throw new Error(`Unable to create surface, got null from CanvasKit, isNode=${isNode}, width=${width}, height=${height}`)
+      }
     } else {
       this.surface = Konva.canvasKit.MakeCanvasSurface(htmlCanvas);
+      if (this.surface === null) {
+        // see https://github.com/reelevant-tech/contents/issues/295
+        throw new Error(`Unable to create surface from HTML canvas, got null from CanvasKit`)
+      }
     }
-
     this.emulatedCanvas = new Konva.htmlCanvas(this.surface);
     this._context = this.emulatedCanvas.getContext('2d');
   }
