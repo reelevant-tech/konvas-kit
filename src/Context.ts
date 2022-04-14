@@ -761,7 +761,7 @@ export class SceneContext extends Context {
   }
 
   destroy() {
-    this.surface.dispose();
+    this.surface.delete();
     return this;
   }
 

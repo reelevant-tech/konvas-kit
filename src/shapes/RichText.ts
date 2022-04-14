@@ -120,11 +120,6 @@ export class RichText extends Shape<RichTextConfig> {
    * @description Builds a canvas kit paragraph
    */
   private buildParagraph (maxLength: number = Infinity) {
-    const paint = new Konva.canvasKit.Paint()
-
-    paint.setStyle(Konva.canvasKit.PaintStyle.Fill)
-    paint.setAntiAlias(true)
-
     const textAlign = this.align() === 'left'
       ? Konva.canvasKit.TextAlign.Left
       : this.align() === 'center'
