@@ -761,7 +761,10 @@ export class SceneContext extends Context {
   }
 
   destroy() {
-    this.surface.delete();
+    // NOTE: the .dispose() method is deprecated according to the JSDoc
+    // but the .delete() method don't cleanup the memory
+    // see https://github.com/google/skia/blob/3aa7f602018816ab3f009f1b8d359ccde752e1de/modules/canvaskit/cpu.js#L95-L102
+    this.surface.dispose();
     return this;
   }
 
