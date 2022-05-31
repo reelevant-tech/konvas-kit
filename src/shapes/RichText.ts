@@ -17,6 +17,7 @@ type Color = {
 export interface TextStyle {
   fontFamily: string
   fontSize: number
+  letterSpacing: number
   fontStyle: 'normal' | 'italic' | 'bold' | 'italic bold' | 'bold italic'
   fontVariant: 'normal' | 'small-caps'
   textDecoration: '' | 'underline' | 'line-through' | 'underline line-through'
@@ -171,6 +172,7 @@ export class RichText extends Shape<RichTextConfig> {
         fontFamilies: [partStyle.fontFamily, 'Roboto', 'Noto Color Emoji'],
         fontSize: partStyle.fontSize,
         fontStyle: { weight, slant },
+        letterSpacing: partStyle.letterSpacing,
         decoration,
         color
       })
@@ -374,14 +376,6 @@ Factory.addGetterSetter(RichText, 'wrap', 'word')
 Factory.addGetterSetter(RichText, 'ellipsis', false, getBooleanValidator())
 
 /**
- * set letter spacing property. Default value is 0.
- * @name Konva.Text#letterSpacing
- * @method
- * @param {Number} letterSpacing
- */
-Factory.addGetterSetter(RichText, 'letterSpacing', 0, getNumberValidator())
-
-/**
  * get/set textParts
  * @name Konva.Text#textParts
  * @method
@@ -396,6 +390,7 @@ const defaultTextPart: TextPart = {
   style: {
     fill: { r: 0, g: 0, b: 0, a: 1 },
     fontFamily: 'Arial',
+    letterSpacing: 0,
     fontSize: 12,
     fontStyle: 'normal',
     fontVariant: 'normal',
