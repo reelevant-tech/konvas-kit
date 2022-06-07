@@ -14,7 +14,7 @@ export interface ImageConfig extends ShapeConfig {
    * @description Allows to dislay only the first frame
    * in GIF images
    */
-  disableAnimations: boolean;
+  disableAnimations?: boolean;
 }
 
 /**
