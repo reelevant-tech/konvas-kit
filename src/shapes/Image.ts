@@ -77,11 +77,12 @@ export class Image extends Shape<ImageConfig> {
     this.canvasKitImg = this.canvasKitAnimatedImg.makeImageAtCurrentFrame()
 
     const frameCount = this.canvasKitAnimatedImg.getFrameCount()
+    const ticker = this.getLayer().ticker
+    ticker.unregisterAnimation(this.id())
+
     if (frameCount <= 1 || this.disableAnimations() === true) {
       return
     }
-
-    const ticker = this.getLayer().ticker
 
     // We already displayed first frame, so 1
     let animationFrame = 1
