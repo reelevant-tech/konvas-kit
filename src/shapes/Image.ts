@@ -10,6 +10,11 @@ import { Context, SceneContext } from '../Context';
 
 export interface ImageConfig extends ShapeConfig {
   image: ArrayBuffer | undefined;
+  /**
+   * @description Allows to dislay only the first frame
+   * in GIF images
+   */
+  disableAnimations: boolean;
 }
 
 /**
@@ -37,6 +42,8 @@ export interface ImageConfig extends ShapeConfig {
 export class Image extends Shape<ImageConfig> {
   canvasKitImg: CanvasKitImage
   canvasKitAnimatedImg: AnimatedImage
+
+  public disableAnimations!: GetSet<boolean, this>
 
   constructor(attrs: ImageConfig) {
     super(attrs);
@@ -70,7 +77,7 @@ export class Image extends Shape<ImageConfig> {
     this.canvasKitImg = this.canvasKitAnimatedImg.makeImageAtCurrentFrame()
 
     const frameCount = this.canvasKitAnimatedImg.getFrameCount()
-    if (frameCount <= 1) {
+    if (frameCount <= 1 || this.disableAnimations() === true) {
       return
     }
 
@@ -182,4 +189,11 @@ _registerNode(Image);
  * shape.image(img);
  */
 Factory.addGetterSetter(Image, 'image');
-
+/**
+ * get/set disableAnimations. Allows to dislay only the first frame in GIF images
+ * @name Konva.Image#image
+ * @method
+ * @param {Object} disableAnimations
+ * @returns {Object}
+ */
+Factory.addGetterSetter(Image, 'disableAnimations', false);
