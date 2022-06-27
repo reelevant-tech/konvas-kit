@@ -7,19 +7,6 @@ import { GetSet } from '../types'
 import { getNumberOrAutoValidator, getNumberValidator, getBooleanValidator } from '../Validators'
 import { EmbindEnumEntity, Paragraph, TypefaceFontProvider } from 'canvaskit-wasm'
 
-const supportedFontWeights = {
-  'thin': Konva.canvasKit.FontWeight.Thin,
-  'extra-light': Konva.canvasKit.FontWeight.ExtraLight,
-  'light': Konva.canvasKit.FontWeight.Light,
-  'regular': Konva.canvasKit.FontWeight.Normal,
-  'medium': Konva.canvasKit.FontWeight.Medium,
-  'semi-bold': Konva.canvasKit.FontWeight.SemiBold,
-  'bold': Konva.canvasKit.FontWeight.Bold,
-  'extra-bold': Konva.canvasKit.FontWeight.ExtraBold,
-  'black': Konva.canvasKit.FontWeight.Black,
-  'extra-black': Konva.canvasKit.FontWeight.ExtraBlack
-}
-
 type Color = {
   r: number
   g: number
@@ -31,7 +18,7 @@ export interface TextStyle {
   fontFamily: string
   fontSize: number
   letterSpacing: number
-  fontWeight: keyof typeof supportedFontWeights
+  fontWeight: keyof RichText['supportedFontWeights']
   fontStyle: 'normal' | 'italic'
   fontVariant: 'normal' | 'small-caps'
   textDecoration: '' | 'underline' | 'line-through' | 'underline line-through'
@@ -57,6 +44,18 @@ export interface RichTextConfig extends ShapeConfig {
 export class RichText extends Shape<RichTextConfig> {
   public className = 'RichText'
 
+  private supportedFontWeights = {
+    'thin': Konva.canvasKit.FontWeight.Thin,
+    'extra-light': Konva.canvasKit.FontWeight.ExtraLight,
+    'light': Konva.canvasKit.FontWeight.Light,
+    'regular': Konva.canvasKit.FontWeight.Normal,
+    'medium': Konva.canvasKit.FontWeight.Medium,
+    'semi-bold': Konva.canvasKit.FontWeight.SemiBold,
+    'bold': Konva.canvasKit.FontWeight.Bold,
+    'extra-bold': Konva.canvasKit.FontWeight.ExtraBold,
+    'black': Konva.canvasKit.FontWeight.Black,
+    'extra-black': Konva.canvasKit.FontWeight.ExtraBlack
+  }
   public align!: GetSet<'left' | 'center' | 'right' | 'justify', this>
   public letterSpacing!: GetSet<number, this>
   public verticalAlign!: GetSet<'top' | 'middle' | 'bottom', this>
@@ -166,7 +165,7 @@ export class RichText extends Shape<RichTextConfig> {
         partStyle.fill.a
       ]
 
-      const weight = supportedFontWeights[partStyle.fontWeight]
+      const weight = this.supportedFontWeights[partStyle.fontWeight]
 
       const slant = partStyle.fontStyle === 'italic'
         ? Konva.canvasKit.FontSlant.Italic
