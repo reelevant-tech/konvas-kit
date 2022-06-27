@@ -5,7 +5,20 @@ import { _registerNode } from '../Global'
 import { Shape, ShapeConfig } from '../Shape'
 import { GetSet } from '../types'
 import { getNumberOrAutoValidator, getNumberValidator, getBooleanValidator } from '../Validators'
-import { Paragraph, TypefaceFontProvider } from 'canvaskit-wasm'
+import { EmbindEnumEntity, Paragraph, TypefaceFontProvider } from 'canvaskit-wasm'
+
+const supportedFontWeights = {
+  'thin': Konva.canvasKit.FontWeight.Thin,
+  'extra-light': Konva.canvasKit.FontWeight.ExtraLight,
+  'light': Konva.canvasKit.FontWeight.Light,
+  'regular': Konva.canvasKit.FontWeight.Normal,
+  'medium': Konva.canvasKit.FontWeight.Medium,
+  'semi-bold': Konva.canvasKit.FontWeight.SemiBold,
+  'bold': Konva.canvasKit.FontWeight.Bold,
+  'extra-bold': Konva.canvasKit.FontWeight.ExtraBold,
+  'black': Konva.canvasKit.FontWeight.Black,
+  'extra-black': Konva.canvasKit.FontWeight.ExtraBlack
+}
 
 type Color = {
   r: number
@@ -18,7 +31,8 @@ export interface TextStyle {
   fontFamily: string
   fontSize: number
   letterSpacing: number
-  fontStyle: 'normal' | 'italic' | 'bold' | 'italic bold' | 'bold italic'
+  fontWeight: keyof typeof supportedFontWeights
+  fontStyle: 'normal' | 'italic'
   fontVariant: 'normal' | 'small-caps'
   textDecoration: '' | 'underline' | 'line-through' | 'underline line-through'
   fill: Color
@@ -152,11 +166,9 @@ export class RichText extends Shape<RichTextConfig> {
         partStyle.fill.a
       ]
 
-      const weight = partStyle.fontStyle.includes('bold')
-        ? Konva.canvasKit.FontWeight.Bold
-        : Konva.canvasKit.FontWeight.Normal
+      const weight = supportedFontWeights[partStyle.fontWeight]
 
-      const slant = partStyle.fontStyle.includes('italic')
+      const slant = partStyle.fontStyle === 'italic'
         ? Konva.canvasKit.FontSlant.Italic
         : Konva.canvasKit.FontSlant.Upright
 
@@ -392,6 +404,7 @@ const defaultTextPart: TextPart = {
     fontFamily: 'Arial',
     letterSpacing: 0,
     fontSize: 12,
+    fontWeight: 'regular',
     fontStyle: 'normal',
     fontVariant: 'normal',
     textDecoration: ''
