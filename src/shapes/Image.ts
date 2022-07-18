@@ -142,7 +142,7 @@ export class Image extends Shape<ImageConfig> {
         Konva.canvasKit.LTRBRect(0, 0, this.canvasKitImg.width(), this.canvasKitImg.height()), // we take the full image
         Konva.canvasKit.LTRBRect(0, 0, width, height), // scale it to width+height wanted
         Konva.canvasKit.FilterMode.Linear, // linear sampling (better than nearest which doesn't seems fast but produce lower image quality)
-        Konva.canvasKit.MipmapMode.None
+        Konva.canvasKit.MipmapMode.Linear // better downscaling
       )
     }
   }
