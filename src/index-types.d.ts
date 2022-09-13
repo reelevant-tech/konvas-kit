@@ -31,6 +31,7 @@ import { CanvasKit, Surface, EmulatedCanvas2D, CanvasKitInitOptions, TypefaceFon
 declare namespace Konva {
   export let enableTrace: number;
   export let pixelRatio: number;
+  export let hasCanvasHTMLElement: boolean;
   export let autoDrawEnabled: boolean;
   export let dragDistance: number;
   export let angleDeg: boolean;
