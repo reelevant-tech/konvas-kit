@@ -44,6 +44,7 @@ let initCanvasKitPromise: Promise<void> = null
 export const Konva = {
   _global: glob,
   version: '@@version',
+  hasCanvasHTMLElement: typeof document !== 'undefined',
   isBrowser: detectBrowser(),
   isUnminified: /param/.test(function (param: any) {}.toString()),
   dblClickWindow: 400,

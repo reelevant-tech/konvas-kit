@@ -1,8 +1,7 @@
 // main entry for umd build for rollup
 import { Konva } from './_FullInternals';
-const isNode = typeof global.document === 'undefined';
 
-if (isNode) {
+if (Konva.hasCanvasHTMLElement === false) {
   Konva.Util['createCanvasElement'] = () => {
     return {
       width: 300,

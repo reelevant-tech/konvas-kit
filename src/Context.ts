@@ -740,7 +740,7 @@ export class SceneContext extends Context {
 
     const isNode = typeof document === 'undefined';
 
-    if (isNode) {
+    if (Konva.hasCanvasHTMLElement === false) {
       const width = Math.max(htmlCanvas.width, 10);
       const height = Math.max(htmlCanvas.height, 10);
 
