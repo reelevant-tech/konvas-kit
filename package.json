@@ -60,6 +60,7 @@
     "@parcel/transformer-image": "2.0.0-beta.2",
     "@size-limit/preset-big-lib": "^4.10.3",
     "@types/mocha": "^8.2.2",
+    "@webgpu/types": "^0.1.21",
     "chai": "4.3.4",
     "filehound": "^1.17.4",
     "gulp": "^4.0.2",
