@@ -394,6 +394,9 @@ export class Layer extends Container<Group | Shape> {
     return {};
   }
   drawScene(can?: SceneCanvas, top?: Node) {
+    if (typeof this.getStage() === 'undefined') {
+      return this;
+    }
     var stage = this.getStage(),
       canvas = can || stage.canvas;
 
