@@ -175,6 +175,8 @@ export class Stage extends Container<Layer> {
   _touchDblTimeout: any;
   _pointerDblTimeout: any;
 
+  canvas: SceneCanvas;
+
   constructor(private config: StageConfig) {
     super(checkNoClip(config));
     this._buildDOM();
@@ -188,6 +190,11 @@ export class Stage extends Container<Layer> {
       }
     );
     this._checkVisibility();
+
+    this.canvas = new SceneCanvas({ width: config.width, height: config.height });
+    if (Konva.isBrowser) {
+      this.content.appendChild(this.canvas._canvas);
+    }
   }
 
   _validateAdd(child) {
@@ -432,10 +439,6 @@ export class Stage extends Container<Layer> {
     // draw layer and append canvas to container
     if (Konva.autoDrawEnabled) {
       layer.draw();
-    }
-
-    if (Konva.isBrowser) {
-      this.content.appendChild(layer.canvas._canvas);
     }
 
     // chainable

@@ -332,8 +332,8 @@ export abstract class Container<
     this._requestDraw();
   }
   drawScene(can?: SceneCanvas, top?: Node) {
-    var layer = this.getLayer(),
-      canvas = can || (layer && layer.getCanvas()),
+    var stage = this.getStage(),
+      canvas = can || stage.canvas,
       context = canvas && canvas.getContext(),
       cachedCanvas = this._getCanvasCache(),
       cachedSceneCanvas = cachedCanvas && cachedCanvas.scene;

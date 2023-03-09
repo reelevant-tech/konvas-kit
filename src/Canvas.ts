@@ -172,6 +172,7 @@ Factory.addGetterSetter(Canvas, 'pixelRatio', undefined, getNumberValidator());
 export class SceneCanvas extends Canvas<SceneContext> {
   constructor(config: ICanvasConfig = { width: 0, height: 0 }) {
     super(config);
+    this.sizeCanvas(config.width, config.height); // set right width/height before creating surface
     this.context = new SceneContext(this);
     this.setSize(config.width, config.height);
   }

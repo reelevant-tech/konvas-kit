@@ -197,16 +197,16 @@ export class Shape<
     shapes[key] = this;
   }
 
-  getContext() {
-    Util.warn(
-      'shape.getContext() method is deprecated. Please do not use it.'
-    );
-    return this.getLayer().getContext();
-  }
-  getCanvas() {
-    Util.warn('shape.getCanvas() method is deprecated. Please do not use it.');
-    return this.getLayer().getCanvas();
-  }
+  // getContext() {
+  //   Util.warn(
+  //     'shape.getContext() method is deprecated. Please do not use it.'
+  //   );
+  //   return this.getLayer().getContext();
+  // }
+  // getCanvas() {
+  //   Util.warn('shape.getCanvas() method is deprecated. Please do not use it.');
+  //   return this.getLayer().getCanvas();
+  // }
 
   getSceneFunc() {
     return this.attrs.sceneFunc || this['_sceneFunc'];
@@ -570,13 +570,12 @@ export class Shape<
     // 2 - when we are caching current
     // 3 - when node is cached and we need to draw it into layer
 
-    var layer = this.getLayer(),
-      canvas = can || layer.getCanvas(),
+    var stage = this.getStage(),
+      canvas = can || stage.canvas,
       context = canvas.getContext() as SceneContext,
       cachedCanvas = this._getCanvasCache(),
       drawFunc = this.getSceneFunc(),
       hasShadow = this.hasShadow(),
-      stage,
       bufferCanvas,
       bufferContext;
 
@@ -604,7 +603,6 @@ export class Shape<
     context.save();
     // if buffer canvas is needed
     if (this._useBufferCanvas() && !skipBuffer) {
-      stage = this.getStage();
       bufferCanvas = stage.bufferCanvas;
       bufferContext = bufferCanvas.getContext();
       bufferContext.clear();

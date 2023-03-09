@@ -56,7 +56,7 @@ var HASH = '#',
  */
 
 export class Layer extends Container<Group | Shape> {
-  canvas = new SceneCanvas();
+  // canvas = new SceneCanvas();
   hitCanvas?: HitCanvas
 
   _waitingForDraw = false;
@@ -64,11 +64,11 @@ export class Layer extends Container<Group | Shape> {
 
   constructor(config?: LayerConfig) {
     super(config);
-    this.on('visibleChange.konva', this._checkVisibility);
-    this._checkVisibility();
+    // this.on('visibleChange.konva', this._checkVisibility);
+    // this._checkVisibility();
 
-    this.on('imageSmoothingEnabledChange.konva', this._setSmoothEnabled);
-    this._setSmoothEnabled();
+    // this.on('imageSmoothingEnabledChange.konva', this._setSmoothEnabled);
+    // this._setSmoothEnabled();
     this.ticker = new Ticker(this)
     if (config.listening !== false) {
       this.hitCanvas = new HitCanvas({
@@ -77,26 +77,26 @@ export class Layer extends Container<Group | Shape> {
     }
   }
   // for nodejs?
-  createPNGStream() {
-    const c = this.canvas._canvas as any;
-    return c.createPNGStream();
-  }
+  // createPNGStream() {
+  //   const c = this.canvas._canvas as any;
+  //   return c.createPNGStream();
+  // }
   /**
    * get layer canvas wrapper
    * @method
    * @name Konva.Layer#getCanvas
    */
-  getCanvas() {
-    return this.canvas;
-  }
+  // getCanvas() {
+  //   return this.canvas;
+  // }
   /**
    * get native canvas element
    * @method
    * @name Konva.Layer#getNativeCanvasElement
    */
-  getNativeCanvasElement() {
-    return this.canvas._canvas;
-  }
+  // getNativeCanvasElement() {
+  //   return this.canvas._canvas;
+  // }
   /**
    * get layer hit canvas
    * @method
@@ -110,119 +110,119 @@ export class Layer extends Container<Group | Shape> {
    * @method
    * @name Konva.Layer#getContext
    */
-  getContext() {
-    return this.getCanvas().getContext();
-  }
+  // getContext() {
+  //   return this.getCanvas().getContext();
+  // }
   // TODO: deprecate this method
   clear(bounds?) {
-    this.getContext().clear(bounds);
+    // this.getContext().clear(bounds);
     this.getHitCanvas()?.getContext().clear(bounds);
     return this;
   }
   // extend Node.prototype.setZIndex
-  setZIndex(index) {
-    super.setZIndex(index);
-    var stage = this.getStage();
-    if (stage && stage.content) {
-      stage.content.removeChild(this.getNativeCanvasElement());
+  // setZIndex(index) {
+  //   super.setZIndex(index);
+  //   var stage = this.getStage();
+  //   if (stage && stage.content) {
+  //     stage.content.removeChild(this.getNativeCanvasElement());
 
-      if (index < stage.children.length - 1) {
-        stage.content.insertBefore(
-          this.getNativeCanvasElement(),
-          stage.children[index + 1].getCanvas()._canvas
-        );
-      } else {
-        stage.content.appendChild(this.getNativeCanvasElement());
-      }
-    }
-    return this;
-  }
-  moveToTop() {
-    Node.prototype.moveToTop.call(this);
-    var stage = this.getStage();
-    if (stage && stage.content) {
-      stage.content.removeChild(this.getNativeCanvasElement());
-      stage.content.appendChild(this.getNativeCanvasElement());
-    }
-    return true;
-  }
-  moveUp() {
-    var moved = Node.prototype.moveUp.call(this);
-    if (!moved) {
-      return false;
-    }
-    var stage = this.getStage();
-    if (!stage || !stage.content) {
-      return false;
-    }
-    stage.content.removeChild(this.getNativeCanvasElement());
+  //     if (index < stage.children.length - 1) {
+  //       stage.content.insertBefore(
+  //         this.getNativeCanvasElement(),
+  //         stage.children[index + 1].getCanvas()._canvas
+  //       );
+  //     } else {
+  //       stage.content.appendChild(this.getNativeCanvasElement());
+  //     }
+  //   }
+  //   return this;
+  // }
+  // moveToTop() {
+  //   Node.prototype.moveToTop.call(this);
+  //   var stage = this.getStage();
+  //   if (stage && stage.content) {
+  //     stage.content.removeChild(this.getNativeCanvasElement());
+  //     stage.content.appendChild(this.getNativeCanvasElement());
+  //   }
+  //   return true;
+  // }
+  // moveUp() {
+  //   var moved = Node.prototype.moveUp.call(this);
+  //   if (!moved) {
+  //     return false;
+  //   }
+  //   var stage = this.getStage();
+  //   if (!stage || !stage.content) {
+  //     return false;
+  //   }
+  //   stage.content.removeChild(this.getNativeCanvasElement());
 
-    if (this.index < stage.children.length - 1) {
-      stage.content.insertBefore(
-        this.getNativeCanvasElement(),
-        stage.children[this.index + 1].getCanvas()._canvas
-      );
-    } else {
-      stage.content.appendChild(this.getNativeCanvasElement());
-    }
-    return true;
-  }
+  //   if (this.index < stage.children.length - 1) {
+  //     stage.content.insertBefore(
+  //       this.getNativeCanvasElement(),
+  //       stage.children[this.index + 1].getCanvas()._canvas
+  //     );
+  //   } else {
+  //     stage.content.appendChild(this.getNativeCanvasElement());
+  //   }
+  //   return true;
+  // }
   // extend Node.prototype.moveDown
-  moveDown() {
-    if (Node.prototype.moveDown.call(this)) {
-      var stage = this.getStage();
-      if (stage) {
-        var children = stage.children;
-        if (stage.content) {
-          stage.content.removeChild(this.getNativeCanvasElement());
-          stage.content.insertBefore(
-            this.getNativeCanvasElement(),
-            children[this.index + 1].getCanvas()._canvas
-          );
-        }
-      }
-      return true;
-    }
-    return false;
-  }
+  // moveDown() {
+  //   if (Node.prototype.moveDown.call(this)) {
+  //     var stage = this.getStage();
+  //     if (stage) {
+  //       var children = stage.children;
+  //       if (stage.content) {
+  //         stage.content.removeChild(this.getNativeCanvasElement());
+  //         stage.content.insertBefore(
+  //           this.getNativeCanvasElement(),
+  //           children[this.index + 1].getCanvas()._canvas
+  //         );
+  //       }
+  //     }
+  //     return true;
+  //   }
+  //   return false;
+  // }
   // extend Node.prototype.moveToBottom
-  moveToBottom() {
-    if (Node.prototype.moveToBottom.call(this)) {
-      var stage = this.getStage();
-      if (stage) {
-        var children = stage.children;
-        if (stage.content) {
-          stage.content.removeChild(this.getNativeCanvasElement());
-          stage.content.insertBefore(
-            this.getNativeCanvasElement(),
-            children[1].getCanvas()._canvas
-          );
-        }
-      }
-      return true;
-    }
-    return false;
-  }
+  // moveToBottom() {
+  //   if (Node.prototype.moveToBottom.call(this)) {
+  //     var stage = this.getStage();
+  //     if (stage) {
+  //       var children = stage.children;
+  //       if (stage.content) {
+  //         stage.content.removeChild(this.getNativeCanvasElement());
+  //         stage.content.insertBefore(
+  //           this.getNativeCanvasElement(),
+  //           children[1].getCanvas()._canvas
+  //         );
+  //       }
+  //     }
+  //     return true;
+  //   }
+  //   return false;
+  // }
   getLayer() {
     return this;
   }
   remove() {
-    var _canvas = this.getNativeCanvasElement();
+    // var _canvas = this.getNativeCanvasElement();
 
-    Node.prototype.remove.call(this);
+    // Node.prototype.remove.call(this);
 
-    if (_canvas && _canvas.parentNode && Util._isInDocument(_canvas)) {
-      _canvas.parentNode.removeChild(_canvas);
-    }
+    // if (_canvas && _canvas.parentNode && Util._isInDocument(_canvas)) {
+    //   _canvas.parentNode.removeChild(_canvas);
+    // }
     return this;
   }
   getStage() {
     return this.parent as Stage;
   }
   setSize({ width, height }) {
-    this.canvas.setSize(width, height);
+    // this.canvas.setSize(width, height);
     this.hitCanvas?.setSize(width, height);
-    this._setSmoothEnabled();
+    // this._setSmoothEnabled();
     return this;
   }
   _validateAdd(child) {
@@ -241,19 +241,19 @@ export class Layer extends Container<Group | Shape> {
     return Node.prototype._toKonvaCanvas.call(this, config);
   }
 
-  _checkVisibility() {
-    const visible = this.visible();
-    if (visible) {
-      this.canvas._canvas.style.display = 'block';
-    } else {
-      this.canvas._canvas.style.display = 'none';
-    }
-  }
+  // _checkVisibility() {
+  //   const visible = this.visible();
+  //   if (visible) {
+  //     this.canvas._canvas.style.display = 'block';
+  //   } else {
+  //     this.canvas._canvas.style.display = 'none';
+  //   }
+  // }
 
-  _setSmoothEnabled() {
-    this.getContext()._context.imageSmoothingEnabled =
-      this.imageSmoothingEnabled();
-  }
+  // _setSmoothEnabled() {
+  //   this.getContext()._context.imageSmoothingEnabled =
+  //     this.imageSmoothingEnabled();
+  // }
   /**
    * get/set width of layer. getter return width of stage. setter doing nothing.
    * if you want change width use `stage.width(value);`
@@ -394,8 +394,8 @@ export class Layer extends Container<Group | Shape> {
     return {};
   }
   drawScene(can?: SceneCanvas, top?: Node) {
-    var layer = this.getLayer(),
-      canvas = can || (layer && layer.getCanvas());
+    var stage = this.getStage(),
+      canvas = can || stage.canvas;
 
     this._fire(BEFORE_DRAW, {
       node: this,
@@ -490,7 +490,7 @@ export class Layer extends Container<Group | Shape> {
     super.destroy();
 
     this.hitCanvas?.destroy();
-    this.canvas.destroy();
+    // this.canvas.destroy();
     return this;
   }
 
