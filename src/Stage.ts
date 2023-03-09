@@ -397,6 +397,7 @@ export class Stage extends Container<Layer> {
   setSize(size) {
     super.setSize(size)
     this._resizeDOM()
+    this.canvas.setSize(size.width, size.height)
     return this
   }
   _resizeDOM() {
