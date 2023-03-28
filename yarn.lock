@@ -1818,10 +1818,10 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001370:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001399.tgz#1bf994ca375d7f33f8d01ce03b7d5139e8587873"
   integrity sha512-4vQ90tMKS+FkvuVWS5/QY1+d805ODxZiKFzsU8o/RsVJz49ZSRR8EjykLJbqhzdPgadbX6wB538wOzle3JniRA==
 
-canvaskit-wasm@^0.37.2:
-  version "0.37.2"
-  resolved "https://registry.yarnpkg.com/canvaskit-wasm/-/canvaskit-wasm-0.37.2.tgz#add4321d720cae23f895644ed8f45757e03d6011"
-  integrity sha512-212imazRF98gLOTiU4JAXM7xDvaknI7jaPtAg4ETXGW5rLQs6pomgIvVPUSfoKnQVTdGgzj+B4e+/u0Da20aGg==
+canvaskit-wasm@0.32.0:
+  version "0.32.0"
+  resolved "https://registry.yarnpkg.com/canvaskit-wasm/-/canvaskit-wasm-0.32.0.tgz#4964e5fe9adca21eb0cdb3b7368a2b9cd9460e9a"
+  integrity sha512-H3Por5oDOXLXje5j+7aPTUtHvfRpYFm4u073Xi2kSBfS3vZQmDoiLdwQthf00zTUBtOK1lX8+6qmBFHdfKdxRw==
 
 catharsis@^0.9.0:
   version "0.9.0"

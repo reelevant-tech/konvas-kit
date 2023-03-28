@@ -1,6 +1,6 @@
 {
   "name": "@rlvt/konva",
-  "version": "9.6.10",
+  "version": "9.6.11",
   "author": "Anton Lavrenov",
   "files": [
     "README.md",
@@ -107,6 +107,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "canvaskit-wasm": "^0.37.2"
+    "canvaskit-wasm": "0.32.0"
   }
 }
